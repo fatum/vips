@@ -1,0 +1,38 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: http://127.0.0.1:7055/hub/session/cd8889e8-abce-1149-b7ce-ea517836785a/url
+    body:
+      encoding: UTF-8
+      string: ! '{"url":"http://amazon.com"}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json; charset=utf-8
+      Content-Length:
+      - '27'
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/json; charset=UTF-8
+      Connection:
+      - close
+      Content-Length:
+      - '87'
+      Server:
+      - httpd.js
+      Date:
+      - Thu, 01 Nov 2012 16:06:00 GMT
+    body:
+      encoding: US-ASCII
+      string: ! '{"name":"get","sessionId":"cd8889e8-abce-1149-b7ce-ea517836785a","status":0,"value":""}'
+    http_version: 
+  recorded_at: Thu, 01 Nov 2012 16:06:00 GMT
+recorded_with: VCR 2.2.5
