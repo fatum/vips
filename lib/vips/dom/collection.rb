@@ -6,7 +6,7 @@ module Vips
       end
     end
 
-    class WatirCollection
+    class WatirCollection < Array
       def initialize(watir_collection)
       end
     end
