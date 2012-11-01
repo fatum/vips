@@ -1,9 +1,13 @@
-require 'headless'
-require 'watir'
-
 require "vips/version"
 require 'vips/divider'
+require 'vips/driver_creator'
 
 module Vips
-  # Your code goes here...
+  def self.get_driver(type)
+    @@driver ||= DriverCreator.create(type)
+  end
+
+  def self.quit
+    @@driver.quit if @@driver
+  end
 end
