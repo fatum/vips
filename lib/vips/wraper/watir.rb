@@ -11,8 +11,8 @@ module Vips
       end
 
       def goto(url)
-        @driver.goto(url)
-        @driver.elements.map { |el| Vips::Dom::WatirCollection.new(el) }
+        driver.goto(url)
+        Vips::Dom::WatirElement.new driver.element(xpath: '/html/body')
       end
 
       def quit

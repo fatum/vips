@@ -1,5 +1,18 @@
 module Vips
   module Dom
+    class WatirElement
+      attr_reader :element, :parent
+
+      def initialize(element, parent = nil)
+        @element, @parent = element, parent
+      end
+
+      def children
+        element.elements.each { |el| WatirElement.new(el, self) }
+      end
+
+    end
+
     class Element
       attr_reader :parent, :children, :attributes
 
@@ -11,6 +24,10 @@ module Vips
       def create_child(attributes)
         children << Element.new(attributes, self)
         children.last
+      end
+
+      def add_child(child)
+        children << child
       end
 
       %w(

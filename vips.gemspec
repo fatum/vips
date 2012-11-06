@@ -17,6 +17,9 @@ Gem::Specification.new do |gem|
 
   gem.add_dependency 'selenium-webdriver'
   gem.add_dependency 'watir'
+  gem.add_dependency 'css_parser'
+  gem.add_dependency 'rest-client'
+  gem.add_dependency 'nokogiri'
   gem.add_dependency 'headless'
   gem.add_dependency 'thor'
 

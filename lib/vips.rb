@@ -1,11 +1,11 @@
 require "vips/version"
 require 'vips/divider'
-require 'vips/driver_creator'
+require 'vips/wraper_creator'
 
 module Vips
   def self.get_driver(type)
     @@driver ||= {}
-    @@driver[type] ||= DriverCreator.create(type)
+    @@driver[type] ||= WraperCreator.create(type)
   end
 
   def self.quit(type)

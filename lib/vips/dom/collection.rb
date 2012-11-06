@@ -5,10 +5,5 @@ module Vips
         elements.each { |el| self << el }
       end
     end
-
-    class WatirCollection < Array
-      def initialize(watir_collection)
-      end
-    end
   end
 end
