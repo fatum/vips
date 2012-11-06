@@ -1,7 +1,7 @@
 module Vips
   module Dom
     class Element
-      attr_accessor :parent, :children, :attributes
+      attr_reader :parent, :children, :attributes
 
       def initialize(attributes, parent = nil)
         @parent, @attributes = parent, attributes
@@ -13,17 +13,11 @@ module Vips
         children.last
       end
 
-      def tag_name
+      %w(
+        tag_name parent color background_color width height text visible?
+      ).each do |attr|
+        define_method(attr.to_sym) { attributes[attr.to_sym] }
       end
-
-      def children
-      end
-
-      def parent
-      end
-    end
-
-    class Selenium < Element
     end
   end
 end

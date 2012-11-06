@@ -12,10 +12,6 @@ describe Vips::Divider do
 
       it { should be_instance_of(Vips::Pool) }
       it { should_not be_empty }
-
-      it "s" do
-        binding.pry
-      end
     end
   end
 end
