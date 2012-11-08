@@ -1,24 +1,11 @@
 module Vips
   module Dom
-    class WatirElement
-      attr_reader :element, :parent
-
-      def initialize(element, parent = nil)
-        @element, @parent = element, parent
-      end
-
-      def children
-        element.elements.each { |el| WatirElement.new(el, self) }
-      end
-
-    end
-
     class Element
       attr_reader :parent, :children, :attributes
 
       def initialize(attributes, parent = nil)
         @parent, @attributes = parent, attributes
-        @children = Vips::Dom::Collection.new([])
+        @children = []
       end
 
       def create_child(attributes)

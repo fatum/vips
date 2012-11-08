@@ -15,13 +15,11 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
   gem.version       = Vips::VERSION
 
-  gem.add_dependency 'selenium-webdriver'
-  gem.add_dependency 'watir'
-  gem.add_dependency 'css_parser'
   gem.add_dependency 'rest-client'
-  gem.add_dependency 'nokogiri'
-  gem.add_dependency 'headless'
   gem.add_dependency 'thor'
+  gem.add_dependency 'sinatra'
+  gem.add_dependency 'coffee-script'
+  gem.add_dependency 'therubyracer'
 
   gem.add_development_dependency 'rspec'
   gem.add_development_dependency 'rake'

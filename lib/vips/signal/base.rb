@@ -11,7 +11,7 @@ module Vips
       end
 
       def text_node?(el)
-        el.text != nil && el.text.length > 0
+        el.text != nil && el.text.length > 0 && el.children.empty?
       end
 
       def virtual_text_node?(el)
@@ -30,7 +30,7 @@ module Vips
         %w(b big em font i strong u).include?(el.tag_name.to_s)
       end
 
-      def has_valid_children(el)
+      def has_valid_children?(el)
         el.children.find { |child| valid_node?(child) } != nil
       end
 

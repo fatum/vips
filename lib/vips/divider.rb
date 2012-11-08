@@ -1,3 +1,4 @@
+require 'vips/dom/element'
 require 'vips/pool'
 require 'vips/signals'
 
@@ -17,7 +18,7 @@ module Vips
 
   private
     def divide_dom_into_blocks
-      dom.each { |el| divide(el) }
+      divide(dom)
     end
 
     def signal_matched?(el)
@@ -25,8 +26,9 @@ module Vips
     end
 
     def divide(el)
+      puts "processing tag: #{el.tag_name}"
       if signal_matched?(el)
-        el.each { |child| divide(child) }
+        el.children.each { |child| divide(child) }
       else
         @block_pool << el
       end

@@ -17,14 +17,6 @@ RSpec.configure do |config|
   config.filter_run :focus => true
   config.run_all_when_everything_filtered = true
 
-  config.before do
-    Vips.get_driver(:watir)
-  end
-
-  config.after do
-    Vips.quit(:watir)
-  end
-
   VCR.configure do |c|
     c.default_cassette_options = {
       :update_content_length_header => true,

@@ -4,7 +4,7 @@ describe Vips::Divider do
   let!(:root_element) { Vips::Dom::Element.new(tag_name: :html) }
   let!(:element) { root_element.create_child(tag_name: :body) }
 
-  let(:dom) { Vips::Dom::Collection.new([root_element]) }
+  let(:dom) { root_element }
 
   describe "#get_result" do
     context "when not found signals" do
