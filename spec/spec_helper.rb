@@ -5,7 +5,13 @@ ENV["RAILS_ENV"] ||= 'test'
 $: << File.expand_path('../lib', __FILE__)
 require 'rubygems'
 require 'bundler/setup'
+
 require 'vips'
+
+set :environment, :test
+set :run, false
+set :raise_error, true
+set :logging, false
 
 Bundler.require
 
