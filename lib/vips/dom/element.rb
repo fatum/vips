@@ -18,7 +18,11 @@ module Vips
       end
 
       %w(
-        tag_name parent color background_color width height text visible?
+        tag_name parent
+        color background_color
+        width height
+        text visible?
+        offset_left offset_top
       ).each do |attr|
         define_method(attr.to_sym) { attributes[attr.to_sym] }
       end

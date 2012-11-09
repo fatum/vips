@@ -7,6 +7,23 @@ module Vips
       Signal::Color, Signal::Rule1, Signal::Rule2
     ]
 
+    def self.prepare_bookmark_data(input)
+      node = Hash.new
+      input.keys.each { |k| node[k.to_sym] = input[k] }
+      children = node[:children]
+      if children && children.any?
+        node[:children] = children.map { |child| prepare_bookmark_data(child) }
+      end
+      node[:tag_name].downcase!
+
+      %w(width height offset_left offset_top).each do |k|
+        node[k.to_sym] = node[k.to_sym].to_i
+      end
+
+      node[:visible?] = node[:visible] == "true"
+      node
+    end
+
     def self.extract_blocks_from_dom(dom)
       pool = Divider.new(dom, SIGNALS).get_result
 

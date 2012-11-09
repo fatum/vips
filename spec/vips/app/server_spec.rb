@@ -10,7 +10,7 @@ describe "Server" do
   end
 
   it "should respond to /" do
-    get '/extract'
+    post '/extract'
     last_response.should be_ok
   end
 end

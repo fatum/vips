@@ -17,9 +17,13 @@ Gem::Specification.new do |gem|
 
   gem.add_dependency 'rest-client'
   gem.add_dependency 'thor'
+  gem.add_dependency 'thin'
   gem.add_dependency 'sinatra'
+  gem.add_dependency 'sprockets'
   gem.add_dependency 'coffee-script'
   gem.add_dependency 'therubyracer'
+  gem.add_dependency 'haml'
+  gem.add_dependency 'json'
 
   gem.add_development_dependency 'rspec'
   gem.add_development_dependency 'rake'
