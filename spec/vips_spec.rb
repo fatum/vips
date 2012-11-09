@@ -6,12 +6,32 @@ describe Vips::Extractor do
     JSON.parse open(File.expand_path "../fixtures/#{page_hash}.dump", __FILE__).read, max_nesting: 1000
   end
 
-  describe "#prepare_bookmark_data" do
-    let(:page) { "http://forum.jquery.com/topic/how-to-isolate-text-nodes-in-jquery" }
-    subject { described_class.prepare_bookmark_data(load_factory(page)) }
+  let(:page) { "http://forum.jquery.com/topic/how-to-isolate-text-nodes-in-jquery" }
+  let(:page_structure) { described_class.prepare_bookmark_data(load_factory(page)) }
 
-    it "should have valid node structure" do
+  describe "#prepare_bookmark_data" do
+    subject { page_structure }
+
+    it "should have valid structure" do
       subject.should have_key(:tag_name)
+    end
+  end
+
+  describe "#build_dom_elements" do
+    subject { described_class.build_dom_elements(page_structure) }
+
+    it "should create valid elements collection" do
+      first_children = subject.children.first
+      first_children.parent.should == subject
+    end
+  end
+
+  describe "#extract_blocks_from_dom" do
+    let(:dom) { described_class.build_dom_elements(page_structure) }
+    let!(:blocks) { described_class.extract_blocks_from_dom(dom) }
+
+    it "should extract blocks" do
+      puts "blocks #{blocks.count}"
     end
   end
 end

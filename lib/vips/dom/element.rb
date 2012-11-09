@@ -1,7 +1,8 @@
 module Vips
   module Dom
     class Element
-      attr_reader :parent, :children, :attributes
+      attr_reader :children, :attributes
+      attr_accessor :parent, :doc, :level
 
       def initialize(attributes, parent = nil)
         @parent, @attributes = parent, attributes
@@ -14,11 +15,12 @@ module Vips
       end
 
       def add_child(child)
+        child.parent ||= self
         children << child
       end
 
       %w(
-        tag_name parent
+        tag_name xpath
         color background_color
         width height
         text visible?

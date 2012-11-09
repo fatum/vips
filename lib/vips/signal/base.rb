@@ -1,6 +1,22 @@
 module Vips
   module Signal
     module Base
+      def get_doc(el)
+        if [:dividable, :cut].include?(doc)
+          return 0
+        else
+          get_calculated_doc(el, el.level)
+        end
+      end
+
+      def get_calculated_doc(el, level)
+        size = el.width * el.height
+        sum_of_children = el.children.inject(0) do |sum, child|
+          sum += child.width * child.height
+        end
+        size > sum_of_children ? size : sum_of_children
+      end
+
       def valid_node?(el)
         return el.visible? if text_node?(el)
 

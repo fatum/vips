@@ -24,6 +24,14 @@ module Vips
       node
     end
 
+    def self.build_dom_elements(data)
+      children = data.delete(:children)
+      node = Dom::Element.new(data)
+
+      children.each { |child| node.add_child(build_dom_elements(child)) } if children
+      node
+    end
+
     def self.extract_blocks_from_dom(dom)
       pool = Divider.new(dom, SIGNALS).get_result
 

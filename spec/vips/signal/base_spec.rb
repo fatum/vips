@@ -6,9 +6,33 @@ describe Vips::Signal::Base do
   end
 
 
-  let!(:inline_element) { Vips::Dom::Element.new(tag_name: :b, color: "black", visible?: true) }
+  let!(:inline_element) do
+    Vips::Dom::Element.new(
+      tag_name: :b, color: "black", visible?: true,
+      width: 10, height: 20
+    )
+  end
+
   let!(:inline_element_with_text) do
-    Vips::Dom::Element.new(tag_name: :b, color: "black", visible?: true, text: "Some text")
+    Vips::Dom::Element.new(
+      tag_name: :b, color: "black", visible?: true, text: "Some text",
+      width: 20, height: 20
+    )
+  end
+
+  describe "#get_calculated_doc" do
+    subject { TestSignal.get_calculated_doc(inline_element, level = 2) }
+
+    it { should == 200 }
+
+    context "when children size more then parent" do
+      before do
+        inline_element.add_child(inline_element_with_text)
+      end
+
+      subject { TestSignal.get_calculated_doc(inline_element, level = 2) }
+      it { should == 400 }
+    end
   end
 
   describe "#inline_node" do
