@@ -21,7 +21,24 @@ describe Vips::Signal::Base do
   end
 
   describe "#get_calculated_doc" do
-    subject { TestSignal.get_calculated_doc(inline_element, level = 2) }
+  end
+
+  describe "#small_node?" do
+    let(:fake) { double(width: 10, height: 20) }
+
+    subject { TestSignal.small_node?(fake) }
+
+    it { should be_true }
+
+    context "when big enough" do
+      let(:fake) { double(width: 1024, height: 500) }
+
+      it { should be_false }
+    end
+  end
+
+  describe "#get_size" do
+    subject { TestSignal.get_size(inline_element) }
 
     it { should == 200 }
 
@@ -30,7 +47,6 @@ describe Vips::Signal::Base do
         inline_element.add_child(inline_element_with_text)
       end
 
-      subject { TestSignal.get_calculated_doc(inline_element, level = 2) }
       it { should == 400 }
     end
   end

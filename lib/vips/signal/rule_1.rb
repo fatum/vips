@@ -3,6 +3,10 @@ module Vips
     class Rule1
       extend Base
 
+      def doc
+        :cut
+      end
+
       def self.match?(el)
         return true unless valid_node?(el)
 

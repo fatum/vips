@@ -37,7 +37,7 @@ module Vips
 
       if pool.any?
         separators = find_separators(dom)
-        build_final_blocks(pool, separators)
+        construct_page(pool, separators)
       else
         puts "No one blocks extracted"
         []
@@ -47,7 +47,7 @@ module Vips
     def self.find_separators(dom)
     end
 
-    def self.build_final_blocks(pool, separators)
+    def self.construct_page(pool, separators)
       pool.dup
     end
   end

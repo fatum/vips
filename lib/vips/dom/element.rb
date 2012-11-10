@@ -2,7 +2,7 @@ module Vips
   module Dom
     class Element
       attr_reader :children, :attributes
-      attr_accessor :parent, :doc, :level
+      attr_accessor :parent
 
       def initialize(attributes, parent = nil)
         @parent, @attributes = parent, attributes

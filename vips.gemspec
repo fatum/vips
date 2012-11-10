@@ -16,6 +16,7 @@ Gem::Specification.new do |gem|
   gem.version       = Vips::VERSION
 
   gem.add_dependency 'rest-client'
+  gem.add_dependency 'colored'
   gem.add_dependency 'thor'
   gem.add_dependency 'thin'
   gem.add_dependency 'sinatra'
