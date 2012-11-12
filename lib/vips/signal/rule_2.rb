@@ -3,7 +3,7 @@ module Vips
     class Rule2
       extend Base
 
-      def self.match?(el)
+      def self.match?(el, level)
         if el.children.count == 1
           only_child = el.children.first
           ! virtual_text_node?(only_child)

@@ -6,7 +6,7 @@ describe Vips::Divider do
 
   let(:dom) { root_element }
 
-  describe "#get_result", focus: true do
+  describe "#get_result" do
     context "when not found signals" do
       subject { described_class.new(dom, []).get_result }
 
@@ -15,7 +15,6 @@ describe Vips::Divider do
       it { should_not be_empty }
 
       it "should have elements with doc" do
-        puts subject.inspect
         subject.first.doc.should_not be_nil
         subject.first.level.should_not be_nil
         subject.first.el.should_not be_nil

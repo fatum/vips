@@ -1,10 +1,20 @@
 require "vips/version"
 require 'vips/divider'
+require 'colored'
 
 module Vips
   class Extractor
     SIGNALS = [
-      Signal::Color, Signal::Rule1, Signal::Rule2
+      Signal::Rule1,
+      Signal::Rule2,
+      Signal::Rule3,
+      Signal::Rule4,
+      Signal::Rule5,
+      Signal::Rule6,
+      Signal::Color,
+      Signal::Rule8,
+      Signal::Rule10,
+      Signal::Rule13
     ]
 
     def self.prepare_bookmark_data(input)

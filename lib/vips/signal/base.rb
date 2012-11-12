@@ -4,15 +4,21 @@ module Vips
       DEFAULT_DOC = 8
       DEFAULT_PAGE_SIZE = 1024 * 768
 
-      def doc
+      def dividable
         :dividable
       end
 
+      def doc
+        nil
+      end
+
       def get_doc(el)
-        if [:dividable, :cut].include?(doc)
+        return doc if doc
+
+        if [:dividable, :cut].include?(dividable)
           return 0
         else
-          get_calculated_doc(el, el.level)
+          get_calculated_doc(el)
         end
       end
 
@@ -39,9 +45,13 @@ module Vips
         size > sum_of_children ? size : sum_of_children
       end
 
+      def get_relative_size(el, page_size)
+        get_size(el).to_f / page_size.to_f
+      end
+
       # All children is small?
       def are_children_small_node?(el)
-        false if el.empty?
+        return false if el.children.empty?
 
         not_small_child = el.children.find { |child| !small_node?(child) }
         not_small_child ? false : true
@@ -80,12 +90,28 @@ module Vips
         %w(b big em font i strong u).include?(el.tag_name.to_s)
       end
 
+      def child_node_hr_tag?(el)
+        el.children.find { |child| !text_node?(child) && child.tag_name.downcase == "hr" } != nil
+      end
+
       def has_valid_children?(el)
         el.children.find { |child| valid_node?(child) } != nil
       end
 
+      def has_line_break_child?(el)
+        el.children.find { |child| !inline_node?(child) } != nil
+      end
+
+      def has_text_or_virtual_node?(el)
+        el.children.find { |child| text_node?(child) || inline_node?(child) } != nil
+      end
+
       def children_not_virtual_node?(el)
         el.children.find { |child| ! virtual_text_node?(child) } != nil
+      end
+
+      def children_virtual_text_node?(el)
+        el.children.find { |child| !virtual_text_node?(child) } == nil
       end
     end
   end

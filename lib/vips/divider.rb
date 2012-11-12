@@ -6,12 +6,18 @@ require 'vips/signals'
 
 module Vips
   class Divider
-    PDOC = 5
+    PDOC = 9
+    ROUNDS = 1
+    PAGE_SIZE = 1024 * 768
 
     attr_accessor :dom, :signals, :current_signal
 
+    def self.divided
+      @@divided
+    end
+
     def initialize(dom, signals)
-      @dom, @signals = dom, signals
+      @dom, @signals, @@divided = dom, signals, []
       @block_pool = Vips::Pool.new
     end
 
@@ -26,36 +32,53 @@ module Vips
       # 1. Добавляем body в visual block pool
       add_to_block_pool(dom)
 
-      # 2. За первый раунд обходим всех потомков и определяем блоки
+      # 2. Весь первый уровень - блоки
       dom.children.each do |child|
         add_to_block_pool(child)
       end
 
       # 3. Делаем 5 раундов или пока не находим PDoc > DoC
-      max_round, current_round = 10, 0
-      while max_round < current_round && !granularity?
-        divide
+      current_round = 0
+      while ROUNDS > current_round && !granularity?
+        puts "Round at #{current_round}".blue
         current_round += 1
+
+        @block_pool.each do |block|
+          if block.leaf_node? && !granularity?
+            log "Granularity: #{block.doc}".blue, block.level
+            divide(block.el, 0)
+          end
+        end
       end
     end
 
-    def signal_matched?(el)
-      current_signal = signals.find { |signal| signal.match?(el) }
+    def signal_matched?(el, level)
+      @current_signal = signals.find do |signal|
+        log "checking #{signal.inspect}".blue, level
+        signal.match?(el, level)
+      end
+
+      log "MATCHED! #{current_signal.inspect}".green, level if @current_signal
+      @current_signal
     end
 
-    def divide(el, level = 1)
-      puts ("-" * level) + "processing tag: #{el.xpath}"
+    def divide(el, level = 0, ancessor = nil)
+      log = ("-" * level) + "processing (#{level}): #{el.xpath}"
 
-      el.level = level
-
-      if signal_matched?(el)
-        el.children.each { |child| divide(child, level + 1) }
-      else
-        add_to_block_pool(el)
+      debug el, level
+      if signal_matched?(el, level)
+        if current_signal.dividable == :dividable
+          @@divided << el
+          puts log.red
+          el.children.each { |child| divide(child, level + 1, el) }
+        elsif current_signal.dividable == :undividable
+          puts log.yellow
+          add_to_block_pool(el, level, ancessor)
+        end
       end
     end
 
-    def add_to_block_pool(el, parent = nil)
+    def add_to_block_pool(el, level = 0, parent = nil)
       block = Block::Element.new(el, parent)
 
       block.doc = current_signal.get_doc(el) if current_signal
@@ -66,8 +89,19 @@ module Vips
 
     def granularity?
       @block_pool.find do |block|
-        block.el.children.empty? || block.doc < PDOC
+        block.leaf_node? && block.doc >= PDOC
       end != nil
+    end
+
+    def log(msg, level)
+      puts (" " * (level + 1)) + msg
+    end
+
+    def debug(el, level)
+      log "text - #{Signal::Color.text_node?(el)}", level
+      log "width - #{el.width}", level
+      log "height - #{el.height}", level
+      log "visible - #{el.visible?}", level
     end
   end
 end

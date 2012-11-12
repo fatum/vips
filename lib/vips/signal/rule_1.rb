@@ -3,11 +3,11 @@ module Vips
     class Rule1
       extend Base
 
-      def doc
+      def dividable
         :cut
       end
 
-      def self.match?(el)
+      def self.match?(el, level)
         return true unless valid_node?(el)
 
         ! text_node?(el) && ! has_valid_children?(el)

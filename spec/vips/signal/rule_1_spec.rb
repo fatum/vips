@@ -8,13 +8,13 @@ describe Vips::Signal::Rule1 do
     ) }
 
     context "when text node" do
-      subject { described_class.match?(element) }
+      subject { described_class.match?(element, 0) }
 
       it { should be_false }
     end
 
     context "when not text node" do
-      subject { described_class.match?(root_element) }
+      subject { described_class.match?(root_element, 0) }
 
       it { should be_true }
     end

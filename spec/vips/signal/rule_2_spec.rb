@@ -8,7 +8,7 @@ describe Vips::Signal::Rule2 do
     ) }
 
     context "when only one child and it text node" do
-      subject { described_class.match?(element) }
+      subject { described_class.match?(element, 0) }
 
       it { should be_false }
     end

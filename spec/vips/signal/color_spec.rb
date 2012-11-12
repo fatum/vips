@@ -6,7 +6,7 @@ describe Vips::Signal::Color do
       let!(:root_element) { Vips::Dom::Element.new(tag_name: :body, color: "black") }
       let!(:element) { root_element.create_child(tag_name: :div, color: "white") }
 
-      subject { described_class.match?(root_element) }
+      subject { described_class.match?(root_element, 0) }
 
       it { should be_true }
     end
@@ -15,7 +15,7 @@ describe Vips::Signal::Color do
       let!(:root_element) { Vips::Dom::Element.new(tag_name: :html, color: "black") }
       let!(:element) { root_element.create_child(tag_name: :body, color: "black") }
 
-      subject { described_class.match?(root_element) }
+      subject { described_class.match?(root_element, 0) }
 
       it { should be_false }
     end
