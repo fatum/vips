@@ -5,6 +5,8 @@ module Vips
       attr_accessor :doc, :level, :parent
 
       def initialize(el, parent = nil)
+        el = el.dup
+
         @children, @doc, @level, @parent, @el = [], 8, 0, parent, el
       end
 
@@ -15,6 +17,14 @@ module Vips
 
       def leaf_node?
         children.empty?
+      end
+
+      def full_width
+        el.offset_left + el.width
+      end
+
+      def full_height
+        el.offset_top + el.height
       end
     end
   end

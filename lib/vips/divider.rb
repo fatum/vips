@@ -1,7 +1,7 @@
 # -*- encoding : utf-8 -*-
 require 'vips/dom/element'
 require 'vips/block/element'
-require 'vips/pool'
+require 'vips/block/pool'
 require 'vips/signals'
 
 module Vips
@@ -18,7 +18,7 @@ module Vips
 
     def initialize(dom, signals)
       @dom, @signals, @@divided = dom, signals, []
-      @block_pool = Vips::Pool.new
+      @block_pool = Vips::Block::Pool.new
     end
 
     def get_result
@@ -70,7 +70,7 @@ module Vips
         if current_signal.dividable == :dividable
           @@divided << el
           puts log.red
-          el.children.each { |child| divide(child, level + 1, el) }
+          el.children.each { |child| divide(child, level + 1, @block_pool.last) }
         elsif current_signal.dividable == :undividable
           puts log.yellow
           add_to_block_pool(el, level, ancessor)

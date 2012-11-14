@@ -67,7 +67,7 @@ module Vips
       end
 
       def text_node?(el)
-        el.text != nil && el.text.length > 0 && el.children.empty?
+        el.text_node?
       end
 
       def virtual_text_node?(el)

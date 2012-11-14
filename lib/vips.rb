@@ -1,5 +1,7 @@
 require "vips/version"
 require 'vips/divider'
+require 'vips/separator/manager'
+require 'active_support'
 require 'colored'
 
 module Vips

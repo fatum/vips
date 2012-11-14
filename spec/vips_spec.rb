@@ -31,11 +31,12 @@ describe Vips::Extractor do
     let!(:blocks) { described_class.extract_blocks_from_dom(dom) }
 
     it "should extract blocks" do
-      #blocks.each do |block|
-        #puts "xpath: #{block.el.xpath}"
-        #puts "doc: #{block.doc}"
+      puts "Blocks: #{blocks.count}"
+      blocks.each do |block|
+        puts "xpath: #{block.el.xpath}"
+        puts "doc: #{block.doc}"
         #puts "level: #{block.level}"
-      #end
+      end
     end
   end
 end
