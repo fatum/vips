@@ -7,7 +7,62 @@ describe Vips::Separator::Manager do
 
   let(:manager) { described_class.new }
 
-  describe "#split", focus: true do
+  describe "#process" do
+    let(:sep) { double('separator',
+                       left: 20, top: 20,
+                       vertical?: false,
+                       width: 100, height: 100,
+                       blocks: [],
+                       full_width: 120, full_height: 120
+                      ) }
+    let(:block) { double('block',
+                         text_node?: false,
+                         vertical?: true,
+                         leaf_node?: true,
+                         left: 40, top: 40,
+                         width: 50, height: 50,
+                         full_width: 90, full_height: 90
+                        ) }
+    before do
+      manager.separators << sep
+
+      sep.should_receive(:width=).with(50)
+      sep.should_receive(:height=).with(20).twice
+    end
+
+    it "should remove separators" do
+      manager.process([block])
+    end
+  end
+
+  describe "#find_separators" do
+    let(:sep) { double('separator',
+                       left: 20, top: 20,
+                       width: 100, height: 100,
+                       full_width: 120, full_height: 120
+                      ) }
+    let(:block) { double('block',
+                         text_node?: false,
+                         left: 40, top: 40,
+                         width: 50, height: 50,
+                         full_width: 90, full_height: 90
+                        ) }
+
+    before do
+      manager.separators << sep
+
+      #sep.should_receive(:width=).with(20)
+      sep.should_receive(:height=).with(20)
+    end
+
+    pending "Add specs"
+
+    it "should evaluate blocks" do
+      manager.evaluate_block(block)
+    end
+  end
+
+  describe "#split" do
     let(:sep) { double('separator',
                        left: 20, top: 20,
                        width: 100, height: 100
@@ -32,11 +87,11 @@ describe Vips::Separator::Manager do
     it "should split vertical" do
       -> {
         manager.split(sep, block)
-      }.should change { manager.count }.by(1)
+      }.should change { manager.separators.count }.by(1)
     end
   end
 
-  describe "#expand_separator", focus: true do
+  describe "#expand_separator" do
 
     before do
       3.times do |n|
@@ -45,7 +100,7 @@ describe Vips::Separator::Manager do
         block.should_receive(:height=)
 
         manager.init_page(block)
-        manager << block
+        manager.separators << block
       end
     end
 
@@ -60,7 +115,7 @@ describe Vips::Separator::Manager do
         3.times.map { |n| stub_visual_block(n) }
       end
 
-      it "should set page sizes at biggest block", focus: true do
+      it "should set page sizes at biggest block" do
         blocks.each { |b| manager.init_page(b) }
 
         manager.page.width.should == 200

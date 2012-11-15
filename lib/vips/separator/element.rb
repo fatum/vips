@@ -1,10 +1,10 @@
 module Vips
   module Separator
     class Element
-      attr_accessor :blocks, :children, :attributes
+      attr_accessor :blocks, :attributes
 
       def initialize(attributes = {})
-        @children, @attributes = [], attributes
+        @blocks, @attributes = [], attributes
       end
 
       %w(width height left top).each do |el|

@@ -1,10 +1,20 @@
 require "vips/version"
 require 'vips/divider'
 require 'vips/separator/manager'
-require 'active_support'
 require 'colored'
 
 module Vips
+  class Segmenter
+    def extract_blocks
+    end
+
+    def extract_separators
+    end
+
+    def construct_page
+    end
+  end
+
   class Extractor
     SIGNALS = [
       Signal::Rule1,
@@ -48,7 +58,7 @@ module Vips
       pool = Divider.new(dom, SIGNALS).get_result
 
       if pool.any?
-        separators = find_separators(dom)
+        separators = find_separators(pool)
         construct_page(pool, separators)
       else
         puts "No one blocks extracted"
@@ -56,7 +66,9 @@ module Vips
       end
     end
 
-    def self.find_separators(dom)
+    def self.find_separators(pool)
+      manager = Separator::Manager.new
+      manager.process(pool)
     end
 
     def self.construct_page(pool, separators)

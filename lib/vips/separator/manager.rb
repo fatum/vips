@@ -3,16 +3,41 @@ require 'vips/separator/manager/helper'
 
 module Vips
   module Separator
-    class Manager < Array
+    class Manager
       include HelperManager
 
-      attr_reader :page
+      attr_accessor :separators, :page
 
       def initialize
         @page = Element.new
-        @page.width = @page.height = 0
+        @page.width = @page.height = @page.left = @page.top = 0
 
-        self << @page
+        @separators = [@page]
+      end
+
+      def process(pool)
+        # Set page size
+        pool.each { |block| init_page(block) }
+
+        # split separators
+        pool.each do |block|
+          if block.leaf_node?
+            evaluate_block(block)
+          end
+        end
+
+        puts "Remove separator which ajacent border".blue
+        remove_separator_which_ajacent_border
+
+        puts "Expand and refine separator".blue
+        expand_and_refine_separator(pool)
+
+        puts "Set relative blocks".blue
+        set_relative_blocks(pool)
+
+        puts "Remove separators without relative blocks".blue
+        remove_separators_without_relative_blocks
+        separators
       end
 
       def init_page(block)
@@ -26,9 +51,10 @@ module Vips
       end
 
       def evaluate_block(block)
-        return if block.el.text_node?
+        return if block.text_node?
 
-        self.each do |sep|
+        puts "Evaluate block: #{block.el.xpath}".green
+        separators.each do |sep|
           if separator_contain_block?(block, sep)
             #If the block is contained in the separator, split the separator.
             puts "Separator contain block"
@@ -36,7 +62,7 @@ module Vips
           elsif block_cover_separator?(block, sep)
             #If the block covers the separator, remove the separator.
             puts "Block cover separator"
-            self.delete(sep)
+            separators.delete(sep)
           elsif block_across_separator?(block, sep)
             puts "Block across separator"
             split(sep, block)
@@ -48,8 +74,72 @@ module Vips
         end
       end
 
+      def remove_separators_without_relative_blocks
+        separators.each { |s| separators.delete(s) if s.blocks.size == 0 }
+      end
+
+      def remove_separator_which_ajacent_border
+        separators.each do |sep|
+          if sep.left == 0 && sep.height > sep.height ||
+            sep.top == 0 && sep.width > sep.height
+
+            separators.delete(sep)
+          elsif sep.full_width == page.width && sep.height > sep.width ||
+            sep.full_height == page.height && sep.width > sep.height
+
+            separators.delete(sep)
+          end
+        end
+      end
+
+      def set_relative_blocks(blocks)
+        blocks.each do |block|
+          proper_sep = nil
+          d = 10000
+          separators.each do |sep|
+            if block.vertical? && sep.vertical?
+              if ajacent_vertical?(block, sep)
+                proper_sep = sep
+                break
+              else
+                next
+              end
+            elsif ! block.vertical? && !sep.vertical?
+              if ajacent_horizontal?(block, sep)
+                proper_sep = sep
+                break
+              end
+            elsif block.vertical? && !sep.vertical?
+              if ajacent_horizontal?(block, sep)
+                proper_sep = sep
+                d = 0
+              end
+            end
+            d1 = get_horizontal_distance(block, sep)
+            if d1 < d
+              d = d1
+              proper_sep = sep
+            end
+          end
+
+          if proper_sep
+            proper_sep.blocks < block
+          end
+        end
+      end
+
+      def expand_and_refine_separator(blocks)
+        expand_separator
+        refine_separator(blocks)
+        remove_separator_which_ajacent_border
+      end
+
+      def refine_separator(blocks)
+        blocks.each { |block| evaluate_block(block) }
+      end
+
       def expand_separator
-        self.each do |separator|
+        separators.each do |separator|
           if separator.vertical?
             separator.height = page.height
           else

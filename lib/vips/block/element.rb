@@ -10,13 +10,33 @@ module Vips
         @children, @doc, @level, @parent, @el = [], 8, 0, parent, el
       end
 
+      %w(width height).each do |action|
+        define_method(action) { el.send action }
+      end
+
       def add_child(child)
         child.parent ||= self
         children << child
       end
 
+      def vertical?
+        height > width
+      end
+
       def leaf_node?
         children.empty?
+      end
+
+      def text_node?
+        el.text_node?
+      end
+
+      def left
+        el.offset_left
+      end
+
+      def top
+        el.offset_top
       end
 
       def full_width

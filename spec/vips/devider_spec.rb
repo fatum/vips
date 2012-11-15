@@ -10,7 +10,7 @@ describe Vips::Divider do
     context "when not found signals" do
       subject { described_class.new(dom, []).get_result }
 
-      it { should be_instance_of(Vips::Pool) }
+      it { should be_instance_of(Vips::Block::Pool) }
 
       it { should_not be_empty }
 

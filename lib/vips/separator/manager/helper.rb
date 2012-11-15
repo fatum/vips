@@ -5,6 +5,11 @@ module Vips
         (block.height > block.width) :
         sep.left < block.left
 
+      if block.width == 0 || block.height == 0
+        puts "block width null size".red
+        return
+      end
+
       if condition
         # split vertical
         height = sep.height
@@ -16,7 +21,7 @@ module Vips
           width: width, height: height,
           left: left, top: top
         )
-        self << new_sep
+        separators << new_sep
         sep.width = block.left - sep.left
         new_sep
       else
@@ -30,7 +35,7 @@ module Vips
           width: width, height: height,
           left: left, top: top
         )
-        self << new_sep
+        separators << new_sep
         sep.height = block.top - sep.top
         new_sep
       end
@@ -112,14 +117,14 @@ module Vips
     end
 
     def height_locate_between(block, t, b)
-      top, bottom = l, r
-      top, bottom = r, l if top > bottom
+      top, bottom = t, b
+      top, bottom = b, t if top > bottom
 
       block.top > top && block.full_height < bottom
     end
 
     def contained?(sep, block)
-      separator_offset?(sep, block) && separator_smaller(sep, block)
+      separator_offset?(sep, block) && separator_smaller?(sep, block)
     end
 
     def separator_smaller?(sep, block)
@@ -134,6 +139,43 @@ module Vips
       if x > block.left && x < block.full_width
         y > block.top && y < block.full_height
       end
+    end
+
+    def ajacent_vertical?(block, sep)
+      if sep.top <= block.top && block.full_width <= sep.full_width
+        d = block.left - sep.left
+        if d >= 0 && d < 5
+          return true
+        else
+          d = sep.left - block.full_width
+          d >= 0 && d < 5
+        end
+      end
+    end
+
+    def ajacent_horizontal?(block, sep)
+      if sep.left <= block.left && block.full_width <= sep.full_width
+        d = block.top - sep.top
+        if d >= 0 && d < 5
+          true
+        else
+          d = block.top - sep.full_height
+          d >= 0 && d < 5
+        end
+      end
+    end
+
+    def get_horizontal_distance(block, sep)
+      if sep.left <= block.left && block.full_width <= sep.full_width
+        d = block.top - sep.top
+        if d >= 0 && d < 5
+          return d
+        else
+          d = block.top - sep.full_height
+          return d if d >= 0 && d < 5
+        end
+      end
+      100000
     end
   end
 end

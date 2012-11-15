@@ -26,7 +26,7 @@ describe Vips::Extractor do
     end
   end
 
-  describe "#extract_blocks_from_dom" do
+  describe "#extract_blocks_from_dom", focus: true do
     let(:dom) { described_class.build_dom_elements(page_structure) }
     let!(:blocks) { described_class.extract_blocks_from_dom(dom) }
 
