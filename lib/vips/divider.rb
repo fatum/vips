@@ -2,7 +2,6 @@
 require 'vips/dom/element'
 require 'vips/block/element'
 require 'vips/block/pool'
-require 'vips/signals'
 
 module Vips
   class Divider

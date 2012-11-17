@@ -28,7 +28,7 @@ class PageStructureCreator
 
 
 class window.BlockCreator
-  APP_VIP_SERVER = "http://localhost:9393/extract"
+  APP_VIP_SERVER = "http://localhost/extract"
 
   createBlocks: ->
     structureCreator = new PageStructureCreator()

@@ -19,6 +19,7 @@ describe Vips::Separator::Manager do
                          text_node?: false,
                          vertical?: true,
                          leaf_node?: true,
+                         el: double("el", xpath: "xpath"),
                          left: 40, top: 40,
                          width: 50, height: 50,
                          full_width: 90, full_height: 90
@@ -44,6 +45,7 @@ describe Vips::Separator::Manager do
     let(:block) { double('block',
                          text_node?: false,
                          left: 40, top: 40,
+                         el: double("el", xpath: "xpath"),
                          width: 50, height: 50,
                          full_width: 90, full_height: 90
                         ) }

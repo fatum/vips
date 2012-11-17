@@ -7,18 +7,18 @@ describe Vips::Extractor do
   end
 
   let(:page) { "http://forum.jquery.com/topic/how-to-isolate-text-nodes-in-jquery" }
-  let(:page_structure) { described_class.prepare_bookmark_data(load_factory(page)) }
+  let(:extractor) { described_class.new(load_factory(page)) }
 
-  describe "#prepare_bookmark_data" do
-    subject { page_structure }
+  describe "#dom" do
+    subject { extractor.dom }
 
     it "should have valid structure" do
       subject.should have_key(:tag_name)
     end
   end
 
-  describe "#build_dom_elements" do
-    subject { described_class.build_dom_elements(page_structure) }
+  describe "#elements" do
+    subject { extractor.elements }
 
     it "should create valid elements collection" do
       first_children = subject.children.first
@@ -26,9 +26,8 @@ describe Vips::Extractor do
     end
   end
 
-  describe "#extract_blocks_from_dom", focus: true do
-    let(:dom) { described_class.build_dom_elements(page_structure) }
-    let!(:blocks) { described_class.extract_blocks_from_dom(dom) }
+  describe "#extract_blocks!" do
+    let!(:blocks) { extractor.extract_blocks! }
 
     it "should extract blocks" do
       puts "Blocks: #{blocks.count}"

@@ -23,7 +23,7 @@ class Server < Sinatra::Base
     end
   end
 
-  post "/extract" do
+  post '/serialize' do
     if params[:dom]
       dom = prepare params[:dom]
       puts dom.inspect
@@ -31,6 +31,21 @@ class Server < Sinatra::Base
     end
 
     {status: :ok, blocks: []}.to_json
+
+  end
+
+  post "/extract" do
+    if params[:dom]
+      dom = prepare params[:dom]
+      dom = Vips::Extractor.prepare_dom_data(dom)
+
+      dom = Vips::Extractor.build_dom_elements(dom)
+      blocks = Vips::Extractor.extract_blocks_from_dom(dom)
+
+      extractor = Vips::Extractor.new(dom)
+    end
+
+    {status: :ok, blocks: blocks}.to_json
   end
 
   get '/' do

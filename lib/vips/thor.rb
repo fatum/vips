@@ -25,18 +25,27 @@ module Vips
               method: 'Page.navigate',
               params: {url: 'http://lenta.ru/?' + rand(100).to_s}
             })
-            ws.send JSON.dump({
+
+            retrive_document!
+            ws.send JSON.dump(
               id: 2,
-              method: 'DOM.highlightRect',
-              params: {
-                x: 100, y: 100,
-                width: 100, height: 100,
-                color: {r: 0, b: 0, g: 0}
-              }
-            })
+              method: "DOM.getAttributes",
+              params: { nodeId: 5 }
+            )
+
+            #ws.send JSON.dump({
+              #id: 2,
+              #method: 'DOM.highlightRect',
+              #params: {
+                #x: 100, y: 100,
+                #width: 100, height: 100,
+                #color: {r: 0, b: 0, g: 0}
+              #}
+            #})
           end
 
           ws.onmessage = lambda do |event|
+            binding.pry
             # print event notifications from Chrome to the console
             p [:new_message, JSON.parse(event.data)]
           end
