@@ -15,6 +15,10 @@ class Server < Sinatra::Base
       end
     end
 
+    def prepare_result(blocks)
+      blocks.map(&:xpath)
+    end
+
     def prepare(dom)
       if dom["children"]
         dom["children"] = dom["children"].values.map { |child| prepare(child) }
@@ -37,12 +41,8 @@ class Server < Sinatra::Base
   post "/extract" do
     if params[:dom]
       dom = prepare params[:dom]
-      dom = Vips::Extractor.prepare_dom_data(dom)
-
-      dom = Vips::Extractor.build_dom_elements(dom)
-      blocks = Vips::Extractor.extract_blocks_from_dom(dom)
-
       extractor = Vips::Extractor.new(dom)
+      blocks = prepare_result extractor.extract_blocks!
     end
 
     {status: :ok, blocks: blocks}.to_json

@@ -46,6 +46,10 @@ module Vips
       def full_height
         el.offset_top + el.height
       end
+
+      def xpath
+        el.xpath
+      end
     end
   end
 end

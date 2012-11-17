@@ -10,7 +10,17 @@
     "default_title": "Vips"
   },
   "permissions": [
+    "tabs",
+    "*://*/*",
+    "cookies",
     "*://localhost/*",
     "*://vips.purls.ru/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["contentscript.js"],
+      "run_at": "document_idle"
+    }
   ]
 }

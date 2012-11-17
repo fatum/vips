@@ -10,11 +10,11 @@ namespace :chrome do
     environment = Sprockets::Environment.new
     environment.append_path 'lib/vips/app/assets/javascripts'
 
-    js = environment['application.js']
-
-    path = "#{File.dirname(__FILE__)}/chromeplugin/vips_dom.js"
-    open path, 'w' do |f|
-      f.puts js
+    %w(contentscript.js plugin.js).each do |js|
+      path = "#{File.dirname(__FILE__)}/chromeplugin/#{js}"
+      open path, 'w' do |f|
+        f.puts environment[js]
+      end
     end
   end
 end

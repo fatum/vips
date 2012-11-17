@@ -70,7 +70,7 @@ module Vips
       pool = Divider.new(elements, SIGNALS).get_result
 
       if pool.any?
-        separators = find_separators(pool)
+        separators = []#find_separators(pool)
         construct_page(pool, separators)
       else
         puts "No one blocks extracted"
