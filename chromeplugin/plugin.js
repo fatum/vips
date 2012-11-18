@@ -70,13 +70,31 @@ $.fn.textChildren.defaults = {
 
 })(jQuery);
 (function() {
-  var listenExtensionMessages;
+  var requestToVipsServer;
 
-  listenExtensionMessages = function() {
+  window.listenExtensionMessages = function() {
     return chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
       if (request.action === "extract") {
-        return console.log(request.dom);
+        requestToVipsServer(request.dom, sendResponse);
       }
+      console.log('Listen extract event...');
+      return true;
+    });
+  };
+
+  requestToVipsServer = function(dom, sendResponse) {
+    console.log('Send request to vips server...');
+    return $.post('http://localhost/extract', {
+      dom: dom,
+      url: window.location.href
+    }).complete(function(response) {
+      if (response.readyState === 4) {
+        console.log('Response received');
+        sendResponse(response.responseText);
+      } else {
+        console.log('Response failed..');
+      }
+      return console.log(response.responseText);
     });
   };
 
@@ -84,3 +102,5 @@ $.fn.textChildren.defaults = {
 
 
 
+
+window.listenExtensionMessages();

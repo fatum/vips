@@ -70,9 +70,70 @@ $.fn.textChildren.defaults = {
 
 })(jQuery);
 (function() {
-  var PageStructureCreator, XpathFinder;
 
-  PageStructureCreator = (function() {
+  window.Xpath = (function() {
+
+    function Xpath(element) {
+      this.element = element;
+    }
+
+    Xpath.prototype.getXY = function() {
+      var element, x, y;
+      x = 0;
+      y = 0;
+      element = this.element;
+      while (element) {
+        x += element.offsetLeft;
+        y += element.offsetTop;
+        element = element.offsetParent;
+      }
+      return [x, y];
+    };
+
+    Xpath.prototype.getElementByXPath = function(sValue) {
+      var a;
+      console.log("Evaluate xpath: " + sValue);
+      a = document.evaluate(sValue, document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+      if (a.snapshotLength > 0) {
+        return a.snapshotItem(0);
+      }
+    };
+
+    Xpath.prototype.getPath = function(element) {
+      var ix, sibling, siblings, _i, _len;
+      if (element == null) {
+        element = null;
+      }
+      if (!element) {
+        element = this.element;
+      }
+      if (element.id) {
+        return "" + element.tagName + "[@id = '" + element.id + "']";
+      }
+      if (element === document.body) {
+        return element.tagName;
+      }
+      ix = 0;
+      siblings = element.parentNode.childNodes;
+      for (_i = 0, _len = siblings.length; _i < _len; _i++) {
+        sibling = siblings[_i];
+        if (sibling === element) {
+          return this.getPath(element.parentNode) + "/" + element.tagName + ("[" + (ix + 1) + "]");
+        }
+        if (sibling.nodeType === 1 && sibling.tagName === element.tagName) {
+          ix++;
+        }
+      }
+    };
+
+    return Xpath;
+
+  })();
+
+}).call(this);
+(function() {
+
+  window.PageStructureCreator = (function() {
 
     function PageStructureCreator() {}
 
@@ -102,7 +163,7 @@ $.fn.textChildren.defaults = {
     };
 
     PageStructureCreator.prototype.getXpath = function(element) {
-      return (new XpathFinder(element.get()[0])).getPath();
+      return (new Xpath(element.get()[0])).getPath().toLowerCase();
     };
 
     PageStructureCreator.prototype.getChildren = function(element) {
@@ -122,106 +183,34 @@ $.fn.textChildren.defaults = {
 
   })();
 
-  window.BlockCreator = (function() {
-    var APP_VIP_SERVER;
+}).call(this);
+(function() {
 
-    function BlockCreator() {}
+  window.Renderer = (function() {
 
-    APP_VIP_SERVER = "http://localhost/extract";
-
-    BlockCreator.prototype.createBlocks = function() {
-      var dom, structureCreator;
-      structureCreator = new PageStructureCreator();
-      dom = structureCreator.createStructure();
-      return this.extractBlocksFromDom(dom);
-    };
-
-    BlockCreator.prototype.extractBlocksFromDomXDM = function(dom) {
-      var rpc;
-      rpc = new easyXDM.Rpc({
-        remote: APP_VIP_SERVER
-      }, {
-        remote: {
-          request: {}
-        }
-      });
-      return rpc.request({
-        url: APP_VIP_SERVER + "extract/",
-        method: "POST",
-        data: {
-          foo: "bar",
-          bar: "foo"
-        }
-      }, function(response) {
-        return alert(response.data);
-      });
-    };
-
-    BlockCreator.prototype.extractBlocksFromDom = function(dom) {
-      return $.ajax({
-        url: APP_VIP_SERVER,
-        type: "post",
-        data: {
-          dom: dom,
-          url: window.location.href,
-          success: function(response) {
-            return console.log(response);
-          }
-        }
-      });
-    };
-
-    return BlockCreator;
-
-  })();
-
-  XpathFinder = (function() {
-
-    function XpathFinder(element) {
-      this.element = element;
+    function Renderer(json) {
+      this.json = json;
     }
 
-    XpathFinder.prototype.getXY = function() {
-      var element, x, y;
-      x = 0;
-      y = 0;
-      element = this.element;
-      while (element) {
-        x += element.offsetLeft;
-        y += element.offsetTop;
-        element = element.offsetParent;
+    Renderer.prototype.renderBlocks = function(blocks) {
+      var block, _i, _len, _results;
+      console.log(blocks);
+      _results = [];
+      for (_i = 0, _len = blocks.length; _i < _len; _i++) {
+        block = blocks[_i];
+        console.log("Processing " + block + "...");
+        _results.push(this.getElementByXPath("//" + block).css({
+          'border-color': 'black'
+        }));
       }
-      return [x, y];
+      return _results;
     };
 
-    XpathFinder.prototype.getPath = function(element) {
-      var ix, sibling, siblings, _i, _len;
-      if (element == null) {
-        element = null;
-      }
-      if (!element) {
-        element = this.element;
-      }
-      if (element.id) {
-        return "id(" + element.id + ")";
-      }
-      if (element === document.body) {
-        return element.tagName;
-      }
-      ix = 0;
-      siblings = element.parentNode.childNodes;
-      for (_i = 0, _len = siblings.length; _i < _len; _i++) {
-        sibling = siblings[_i];
-        if (sibling === element) {
-          return this.getPath(element.parentNode) + "/" + element.tagName + ("[" + (ix + 1) + "]");
-        }
-        if (sibling.nodeType === 1 && sibling.tagName === element.tagName) {
-          ix++;
-        }
-      }
+    Renderer.prototype.getElementByXPath = function(xpath) {
+      return $((new Xpath()).getElementByXPath(xpath));
     };
 
-    return XpathFinder;
+    return Renderer;
 
   })();
 
@@ -230,4 +219,17 @@ $.fn.textChildren.defaults = {
 
 
 
-(new BlockCreator()).createBlocks();
+
+
+var creator = new PageStructureCreator();
+var structure = creator.createStructure();
+
+console.log('Send extraction request to extension');
+chrome.extension.sendMessage({action: "extract", dom: structure}, function(response) {
+  console.log('Receive response!');
+  var json = eval('(' + response + ')');
+
+  var renderer = new Renderer(json)
+  renderer.renderBlocks(json.blocks)
+  //renderer.renderSeparators(json.separators)
+});
