@@ -34,7 +34,11 @@ module Vips
       @blocks ||= split_elements_to_blocks
     end
 
-    def extract_separators!
+    def extract_separators!(blocks)
+      @separators ||= begin
+        manager = Separator::Manager.new
+        manager.process(blocks)
+      end
     end
 
     def construct_page!
@@ -70,24 +74,7 @@ module Vips
     end
 
     def split_elements_to_blocks
-      pool = Divider.new(elements, SIGNALS).get_result
-
-      if pool.any?
-        separators = find_separators(pool)
-        construct_page(pool, separators)
-      else
-        puts "No one blocks extracted"
-        []
-      end
-    end
-
-    def find_separators(pool)
-      manager = Separator::Manager.new
-      manager.process(pool)
-    end
-
-    def construct_page(pool, separators)
-      pool.dup
+      Divider.new(elements, SIGNALS).get_result
     end
   end
 end

@@ -16,27 +16,12 @@ module Vips
       end
 
       def process(pool)
-        # Set page size
-        pool.each { |block| init_page(block) }
-
-        # split separators
-        pool.each do |block|
-          if block.leaf_node?
-            evaluate_block(block)
-          end
-        end
-
-        puts "Remove separator which adjacent border".blue
+        initialize_separators(pool)
         remove_separator_which_adjacent_border
-
-        puts "Expand and refine separator".blue
-        expand_and_refine_separator(pool)
-
-        puts "Set relative blocks".blue
+        #expand_and_refine_separator(pool)
         set_relative_blocks(pool)
+        remove_separators_without_relative_blocks!
 
-        puts "Remove separators without relative blocks".blue
-        remove_separators_without_relative_blocks
         separators
       end
 
@@ -74,11 +59,25 @@ module Vips
         end
       end
 
-      def remove_separators_without_relative_blocks
+      def initialize_separators(pool)
+        # Set page size
+        pool.each { |block| init_page(block) }
+
+        # split separators
+        pool.each do |block|
+          if block.leaf_node?
+            evaluate_block(block)
+          end
+        end
+      end
+
+      def remove_separators_without_relative_blocks!
+        puts "Remove separators without relative blocks".blue
         separators.each { |s| separators.delete(s) if s.blocks.size == 0 }
       end
 
       def remove_separator_which_adjacent_border
+        puts "Remove separator which adjacent border".blue
         separators.each do |sep|
           if sep.left == 0 && sep.height > sep.height ||
             sep.top == 0 && sep.width > sep.height
@@ -93,12 +92,14 @@ module Vips
       end
 
       def set_relative_blocks(blocks)
+        puts "Set relative blocks".blue
         separators.each do |sep|
           sep.blocks = sep.find_adjacent_blocks(blocks)
         end
       end
 
       def expand_and_refine_separator(blocks)
+        puts "Expand and refine separator".blue
         expand_separator
         refine_separator(blocks)
         remove_separator_which_ajacent_border
