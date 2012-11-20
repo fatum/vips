@@ -7,6 +7,125 @@ describe Vips::Separator::Manager do
 
   let(:manager) { described_class.new }
 
+  describe "set relative blocks" do
+    let(:sep) { double('separator',
+                         left: 20, top: 20,
+                         vertical?: true,
+                         horizontal?: false,
+                         blocks: [],
+                         width: 10, height: 100,
+                         full_width: 120, full_height: 120
+                        ) }
+
+    before do
+      sep.extend Vips::Polygon
+      sep.extend Vips::Adjacent
+
+      block.extend Vips::Polygon
+    end
+
+    describe "vertical" do
+      context "when separator adjacent to block" do
+        let(:block) { double('block',
+                           left: 22, top: 40,
+                           vertical?: true,
+                           width: 50, height: 60,
+                           full_width: 90, full_height: 90
+                          ) }
+
+        it "should add block to separator" do
+          manager.separators << sep
+          sep.should_receive(:blocks=).with([block])
+
+          manager.set_relative_blocks([block])
+        end
+      end
+
+      context "when separator not adjacent to block" do
+        let(:block) { double('block',
+                           left: 40, top: 40,
+                           vertical?: true,
+                           width: 50, height: 60,
+                           full_width: 90, full_height: 90
+                          ) }
+
+        it "should not add block to separator" do
+          manager.separators << sep
+          sep.should_receive(:blocks=).with([])
+
+          manager.set_relative_blocks([block])
+        end
+      end
+    end
+  end
+
+  describe "cross separators" do
+    let(:sep) { double('separator',
+                         left: 20, top: 20,
+                         width: 100, height: 100,
+                         full_width: 120, full_height: 120
+                        ) }
+
+    before do
+      sep.extend Vips::Polygon
+      block.extend Vips::Polygon
+    end
+
+    context "when block not cross separator" do
+      let(:block) { double('block',
+                         left: 40, top: 40,
+                         width: 50, height: 50,
+                         full_width: 90, full_height: 90
+                        ) }
+
+      subject { manager.block_cross_separator?(block, sep) }
+
+      it { should be_false }
+    end
+
+    context "when block cross separator" do
+      let(:block) { double('block',
+                         left: 5, top: 40,
+                         width: 50, height: 50,
+                         full_width: 90, full_height: 90
+                        ) }
+
+      subject { manager.block_cross_separator?(block, sep) }
+
+      it { should be_true }
+    end
+  end
+
+  describe "contains" do
+    let(:sep) { double('separator',
+                         left: 20, top: 20,
+                         width: 100, height: 100,
+                         full_width: 120, full_height: 120
+                        ) }
+    let(:block) { double('block',
+                         left: 40, top: 40,
+                         width: 50, height: 50,
+                         full_width: 90, full_height: 90
+                        ) }
+
+    before do
+      sep.extend Vips::Polygon
+      block.extend Vips::Polygon
+    end
+
+    context "when separator into block" do
+      subject { manager.separator_contains_block?(block, sep) }
+
+      it { should be_false }
+    end
+
+    context "when block into separator" do
+      subject { manager.separator_contains_block?(sep, block) }
+
+      it { should be_true }
+    end
+  end
+
   describe "#process" do
     let(:sep) { double('separator',
                        left: 20, top: 20,
@@ -94,7 +213,6 @@ describe Vips::Separator::Manager do
   end
 
   describe "#expand_separator" do
-
     before do
       3.times do |n|
         block = stub_visual_block(n)

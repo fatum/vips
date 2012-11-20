@@ -193,25 +193,16 @@ $.fn.textChildren.defaults = {
     }
 
     Renderer.prototype.renderBlocks = function(blocks) {
-      var block, dummy, element, _i, _len, _results;
+      var block, element, _i, _len, _results;
       _results = [];
       for (_i = 0, _len = blocks.length; _i < _len; _i++) {
         block = blocks[_i];
         console.log("Processing " + block + "...");
         element = this.getElementByXPath("//" + block);
         element.addClass('vips-block');
-        dummy = $('<div></div>');
-        dummy.offset(element.offset());
-        dummy.width(element.width());
-        dummy.height(element.width());
-        dummy.addClass('vips-dummy');
-        dummy.css({
-          'background-color': 'black',
-          'opacity': '0.1',
-          'z-index': 1000000,
-          'position': 'absolute'
-        });
-        _results.push($('body').append(dummy));
+        _results.push(element.css({
+          'border': 'double'
+        }));
       }
       return _results;
     };

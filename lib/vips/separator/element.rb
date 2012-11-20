@@ -1,6 +1,9 @@
 module Vips
   module Separator
     class Element
+      include Polygon
+      include Adjacent
+
       attr_accessor :blocks, :attributes
 
       def initialize(attributes = {})

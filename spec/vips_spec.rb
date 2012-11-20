@@ -1,3 +1,4 @@
+require 'json'
 require 'spec_helper'
 
 describe Vips::Extractor do
@@ -23,19 +24,6 @@ describe Vips::Extractor do
     it "should create valid elements collection" do
       first_children = subject.children.first
       first_children.parent.should == subject
-    end
-  end
-
-  describe "#extract_blocks!" do
-    let!(:blocks) { extractor.extract_blocks! }
-
-    it "should extract blocks" do
-      puts "Blocks: #{blocks.count}"
-      blocks.each do |block|
-        puts "xpath: #{block.el.xpath}"
-        puts "doc: #{block.doc}"
-        #puts "level: #{block.level}"
-      end
     end
   end
 end

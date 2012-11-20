@@ -1,6 +1,8 @@
 module Vips
   module Block
     class Element
+      include Polygon
+
       attr_reader :el, :children
       attr_accessor :doc, :level, :parent
 

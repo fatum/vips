@@ -26,8 +26,8 @@ module Vips
           end
         end
 
-        puts "Remove separator which ajacent border".blue
-        remove_separator_which_ajacent_border
+        puts "Remove separator which adjacent border".blue
+        remove_separator_which_adjacent_border
 
         puts "Expand and refine separator".blue
         expand_and_refine_separator(pool)
@@ -55,7 +55,7 @@ module Vips
 
         puts "Evaluate block: #{block.el.xpath}".green
         separators.each do |sep|
-          if separator_contain_block?(block, sep)
+          if separator_contains_block?(block, sep)
             #If the block is contained in the separator, split the separator.
             puts "Separator contain block"
             split(sep, block, while_contained = true)
@@ -63,13 +63,13 @@ module Vips
             #If the block covers the separator, remove the separator.
             puts "Block cover separator"
             separators.delete(sep)
-          elsif block_across_separator?(block, sep)
+          elsif block_cross_separator?(block, sep)
             puts "Block across separator"
             split(sep, block)
           else
             #If the block crosses with the separator, update the separator's parameters.
             puts "UpdateWhileBlockCrossedBorder"
-            do_update_while_block_crossed_border(block, sep)
+            #do_update_while_block_crossed_border(block, sep)
           end
         end
       end
@@ -78,7 +78,7 @@ module Vips
         separators.each { |s| separators.delete(s) if s.blocks.size == 0 }
       end
 
-      def remove_separator_which_ajacent_border
+      def remove_separator_which_adjacent_border
         separators.each do |sep|
           if sep.left == 0 && sep.height > sep.height ||
             sep.top == 0 && sep.width > sep.height
@@ -93,38 +93,8 @@ module Vips
       end
 
       def set_relative_blocks(blocks)
-        blocks.each do |block|
-          proper_sep = nil
-          d = 10000
-          separators.each do |sep|
-            if block.vertical? && sep.vertical?
-              if ajacent_vertical?(block, sep)
-                proper_sep = sep
-                break
-              else
-                next
-              end
-            elsif ! block.vertical? && !sep.vertical?
-              if ajacent_horizontal?(block, sep)
-                proper_sep = sep
-                break
-              end
-            elsif block.vertical? && !sep.vertical?
-              if ajacent_horizontal?(block, sep)
-                proper_sep = sep
-                d = 0
-              end
-            end
-            d1 = get_horizontal_distance(block, sep)
-            if d1 < d
-              d = d1
-              proper_sep = sep
-            end
-          end
-
-          if proper_sep
-            proper_sep.blocks < block
-          end
+        separators.each do |sep|
+          sep.blocks = sep.find_adjacent_blocks(blocks)
         end
       end
 
