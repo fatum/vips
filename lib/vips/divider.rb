@@ -5,7 +5,7 @@ require 'vips/block/pool'
 
 module Vips
   class Divider
-    PDOC = 9
+    PDOC = 10
     ROUNDS = 1
     PAGE_SIZE = 1024 * 768
 

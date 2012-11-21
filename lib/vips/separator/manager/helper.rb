@@ -88,6 +88,13 @@ module Vips
       contained?(sep, block)
     end
 
+    def separator_same_with_block?(sep, block)
+      sep.width == block.width &&
+        sep.height == block.height &&
+        sep.left == block.left &&
+        sep.top == block.top
+    end
+
     def block_cover_separator?(block, sep)
       contained?(block, sep)
     end

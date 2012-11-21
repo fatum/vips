@@ -40,7 +40,9 @@ module Vips
 
         puts "Evaluate block: #{block.el.xpath}".green
         separators.each do |sep|
-          if separator_contains_block?(block, sep)
+          if separator_same_with_block?(sep, block)
+            separators.delete(sep)
+          elsif separator_contains_block?(sep, block)
             #If the block is contained in the separator, split the separator.
             puts "Separator contain block"
             split(sep, block, while_contained = true)

@@ -24,6 +24,60 @@ describe Vips::Separator::Manager do
       block.extend Vips::Polygon
     end
 
+    describe "horizontal" do
+      context "when separator adjacent to block" do
+        let(:sep) { double('separator',
+                         left: 20, top: 20,
+                         vertical?: false,
+                         horizontal?: true,
+                         blocks: [],
+                         width: 100, height: 40,
+                         full_width: 120, full_height: 120
+                        ) }
+
+        let(:block) { double('block',
+                           left: 40, top: 24,
+                           vertical?: false,
+                           horizontal?: true,
+                           width: 60, height: 40,
+                           full_width: 90, full_height: 90
+                          ) }
+
+        it "should add block to separator" do
+          manager.separators << sep
+          sep.should_receive(:blocks=).with([block])
+
+          manager.set_relative_blocks([block])
+        end
+      end
+
+      context "when separator not adjacent to block" do
+        let(:sep) { double('separator',
+                         left: 20, top: 20,
+                         vertical?: false,
+                         horizontal?: true,
+                         blocks: [],
+                         width: 100, height: 40,
+                         full_width: 120, full_height: 120
+                        ) }
+
+        let(:block) { double('block',
+                           left: 40, top: 25,
+                           vertical?: false,
+                           horizontal?: true,
+                           width: 60, height: 40,
+                           full_width: 90, full_height: 90
+                          ) }
+
+        it "should not add block to separator" do
+          manager.separators << sep
+          sep.should_receive(:blocks=).with([])
+
+          manager.set_relative_blocks([block])
+        end
+      end
+    end
+
     describe "vertical" do
       context "when separator adjacent to block" do
         let(:block) { double('block',
@@ -126,7 +180,7 @@ describe Vips::Separator::Manager do
     end
   end
 
-  describe "#process" do
+  describe "#evaluate_block" do
     let(:sep) { double('separator',
                        left: 20, top: 20,
                        vertical?: false,
@@ -144,42 +198,23 @@ describe Vips::Separator::Manager do
                          full_width: 90, full_height: 90
                         ) }
     before do
+      sep.extend Vips::Polygon
+      sep.extend Vips::Adjacent
+
+      block.extend Vips::Polygon
+
       manager.separators << sep
-
-      sep.should_receive(:width=).with(50)
-      sep.should_receive(:height=).with(20).twice
+      manager.init_page(block)
     end
 
-    it "should remove separators" do
-      manager.process([block])
-    end
-  end
+    context 'when separator contains block' do
+      before do
+        manager.should_receive(:split).twice
+      end
 
-  describe "#find_separators" do
-    let(:sep) { double('separator',
-                       left: 20, top: 20,
-                       width: 100, height: 100,
-                       full_width: 120, full_height: 120
-                      ) }
-    let(:block) { double('block',
-                         text_node?: false,
-                         left: 40, top: 40,
-                         el: double("el", xpath: "xpath"),
-                         width: 50, height: 50,
-                         full_width: 90, full_height: 90
-                        ) }
-
-    before do
-      manager.separators << sep
-
-      #sep.should_receive(:width=).with(20)
-      sep.should_receive(:height=).with(20)
-    end
-
-    pending "Add specs"
-
-    it "should evaluate blocks" do
-      manager.evaluate_block(block)
+      it "should remove separators" do
+        manager.evaluate_block(block)
+      end
     end
   end
 
