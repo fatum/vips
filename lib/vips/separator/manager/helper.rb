@@ -1,44 +1,37 @@
 module Vips
   module HelperManager
-    def split(sep, block, while_contained = false)
-      condition = while_contained ?
-        (block.height > block.width) :
-        sep.left < block.left
-
-      if block.width == 0 || block.height == 0
-        puts "block width null size".red
-        return
-      end
-
-      if condition
-        # split vertical
-        height = sep.height
-        width = sep.width - block.width - (block.left - sep.left)
-        left = block.left + block.width
-        top = sep.top
-
-        new_sep = Vips::Separator::Element.new(
-          width: width, height: height,
-          left: left, top: top
-        )
-        separators << new_sep
-        sep.width = block.left - sep.left
-        new_sep
+    def split(sep, block)
+      old_separator = sep.dup
+      if sep.vertical?
+        if cross_middle_of_separator_width?(sep, block)
+          sep.width = sep.full_left - block.full_left
+        else
+          sep.left = block.full_left
+        end
+        create_separator(sep, width: block.left) unless cross?(sep, block)
       else
-        # split horizontal
-        height = sep.height - block.height - (block.top - sep.top)
-        width = sep.width
-        left = sep.left
-        top = block.top + block.height
-
-        new_sep = Vips::Separator::Element.new(
-          width: width, height: height,
-          left: left, top: top
-        )
-        separators << new_sep
-        sep.height = block.top - sep.top
-        new_sep
+        # horizontal
+        if cross_middle_of_separator_height?(sep, block)
+          sep.height = sep.full_height - block.full_height
+        else
+          sep.top = block.full_height
+        end
+        create_separator(sep, height: block.top) unless cross?(sep, block)
       end
+    end
+
+    def cross_middle_of_separator_height?(sep, block)
+      (sep.height / 2) + sep.top < block.top
+    end
+
+    def cross_middle_of_separator_width?(sep, block)
+      (sep.width / 2) + sep.left < block.left
+    end
+
+    def create_separator(sep, attrs)
+      attrs.merge! sep.attributes
+
+      separators << Vips::Separator::Element.new(attrs)
     end
 
     def do_update_while_block_crossed_border(block, sep)
@@ -86,13 +79,6 @@ module Vips
 
     def separator_contains_block?(sep, block)
       contained?(sep, block)
-    end
-
-    def separator_same_with_block?(sep, block)
-      sep.width == block.width &&
-        sep.height == block.height &&
-        sep.left == block.left &&
-        sep.top == block.top
     end
 
     def block_cover_separator?(block, sep)

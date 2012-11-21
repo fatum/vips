@@ -216,34 +216,81 @@ describe Vips::Separator::Manager do
         manager.evaluate_block(block)
       end
     end
+
+    context 'when block cover separator' do
+      let(:block) { double('block',
+                         text_node?: false,
+                         vertical?: true,
+                         leaf_node?: true,
+                         el: double("el", xpath: "xpath"),
+                         left: 0, top: 0,
+                         width: 150, height: 150,
+                         full_width: 150, full_height: 150
+                        ) }
+
+      it 'should remove separator' do
+        # first time deleted FullPageSeparator
+        manager.separators.should_receive(:delete).twice
+        manager.evaluate_block(block)
+      end
+    end
+
+    context 'when block across separator' do
+      # sep(20, 20, 100, 100)
+      let(:block) { double('block',
+                         text_node?: false,
+                         vertical?: true,
+                         leaf_node?: true,
+                         el: double("el", xpath: "xpath"),
+                         left: 10, top: 10,
+                         width: 150, height: 150,
+                         full_width: 150, full_height: 150
+                        ) }
+
+      it 'should remove separator' do
+        # first time deleted FullPageSeparator
+        manager.separators.should_receive(:delete)
+
+        manager.evaluate_block(block)
+      end
+    end
   end
 
   describe "#split" do
     let(:sep) { double('separator',
-                       left: 20, top: 20,
-                       width: 100, height: 100
+                       left: 0, top: 0,
+                       vertical?: false,
+                       width: 11, height: 11,
+                       full_height: 11, full_width: 11,
+                       attributes: {}
                       ) }
     let(:block) { double('block',
-                         left: 40, top: 40,
-                         width: 50, height: 50
+                         left: 1, top: 1,
+                         width: 3, height: 3,
+                         full_height: 4, full_width: 4
                         ) }
 
     before do
-      sep.should_receive(:width=).with(20)
+      sep.extend Vips::Polygon
+      sep.extend Vips::Adjacent
+      block.extend Vips::Polygon
+
+      sep.should_receive(:top=).with(4)
     end
 
     it "should create valid separator" do
-      separator = manager.split(sep, block)
-      separator.width.should == 30
-      separator.height.should == 100
-      separator.left.should == 90
-      separator.top.should == 20
+      manager.split(sep, block)
     end
 
-    it "should split vertical" do
+    it "should create new separator" do
       -> {
         manager.split(sep, block)
       }.should change { manager.separators.count }.by(1)
+    end
+
+    it "should create valid separator" do
+      manager.split(sep, block)
+      manager.separators.last.height.should == block.top
     end
   end
 

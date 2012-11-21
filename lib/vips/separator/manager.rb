@@ -39,13 +39,13 @@ module Vips
         return if block.text_node?
 
         puts "Evaluate block: #{block.el.xpath}".green
-        separators.each do |sep|
-          if separator_same_with_block?(sep, block)
-            separators.delete(sep)
-          elsif separator_contains_block?(sep, block)
+        # TODO: remove?
+        sep = separators.dup
+        sep.each do |sep|
+          if separator_contains_block?(sep, block)
             #If the block is contained in the separator, split the separator.
             puts "Separator contain block"
-            split(sep, block, while_contained = true)
+            split(sep, block)
           elsif block_cover_separator?(block, sep)
             #If the block covers the separator, remove the separator.
             puts "Block cover separator"
@@ -55,7 +55,7 @@ module Vips
             split(sep, block)
           else
             #If the block crosses with the separator, update the separator's parameters.
-            puts "UpdateWhileBlockCrossedBorder"
+            puts "Block outsize of separator"
             #do_update_while_block_crossed_border(block, sep)
           end
         end
