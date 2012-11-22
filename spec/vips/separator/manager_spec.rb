@@ -229,8 +229,7 @@ describe Vips::Separator::Manager do
                         ) }
 
       it 'should remove separator' do
-        # first time deleted FullPageSeparator
-        manager.separators.should_receive(:delete).twice
+        manager.separators.should_receive(:delete)
         manager.evaluate_block(block)
       end
     end
@@ -248,7 +247,6 @@ describe Vips::Separator::Manager do
                         ) }
 
       it 'should remove separator' do
-        # first time deleted FullPageSeparator
         manager.separators.should_receive(:delete)
 
         manager.evaluate_block(block)
@@ -276,6 +274,7 @@ describe Vips::Separator::Manager do
       block.extend Vips::Polygon
 
       sep.should_receive(:top=).with(4)
+      sep.should_receive(:height=).with(7)
     end
 
     it "should create valid separator" do

@@ -1,5 +1,6 @@
 class window.Renderer
-  constructor: (@json) ->
+  renderSeparators: (separators) ->
+    console.log separators
 
   renderBlocks: (blocks) ->
     for block in blocks

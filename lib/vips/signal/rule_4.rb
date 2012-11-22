@@ -12,6 +12,7 @@ module Vips
       end
 
       def self.match?(el, level)
+        # TODO: check font-size and font-weight
         children_virtual_text_node?(el)
       end
     end

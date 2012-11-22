@@ -1,23 +1,38 @@
 module Vips
   module HelperManager
     def split(sep, block)
+      puts 'Try split separator by block..'
       old_separator = sep.dup
       if sep.vertical?
+        puts 'Separator is vertical'
         if cross_middle_of_separator_width?(sep, block)
+          puts 'Block cross separator middle width'
           sep.width = sep.full_left - block.full_left
+          puts "New separator width: #{sep.width}"
         else
           sep.left = block.full_left
+          puts "New separator left: #{sep.left}"
         end
         create_separator(sep, width: block.left) unless cross?(sep, block)
       else
-        # horizontal
-        if cross_middle_of_separator_height?(sep, block)
-          sep.height = sep.full_height - block.full_height
-        else
-          sep.top = block.full_height
+        puts 'Separator is horizontal'
+        sep.height = sep.full_height - block.full_height
+        puts "New separator height: #{sep.height}"
+        sep.top = block.full_height
+        puts "New separator top: #{sep.top}"
+
+        if !sep.have_same_vertices?(block.create_polygon) && ! cross?(sep, block)
+          puts 'Create new separator'
+          create_separator(sep, height: block.top)
         end
-        create_separator(sep, height: block.top) unless cross?(sep, block)
       end
+    end
+
+    def same?(sep, block)
+      sep.width == block.width &&
+        sep.height == block.height &&
+        sep.left == block.left &&
+        sep.top == block.top
     end
 
     def cross_middle_of_separator_height?(sep, block)
@@ -82,11 +97,11 @@ module Vips
     end
 
     def block_cover_separator?(block, sep)
-      contained?(block, sep)
+      contained?(block, sep) && !sep.have_same_vertices?(block.create_polygon)
     end
 
     def block_cross_separator?(block, sep)
-      cross?(sep, block)
+      cross?(sep, block) && !sep.have_same_vertices?(block.create_polygon)
     end
 
     def cross?(first, second)

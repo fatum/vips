@@ -9,48 +9,61 @@ module Vips
     ROUNDS = 1
     PAGE_SIZE = 1024 * 768
 
-    attr_accessor :dom, :signals, :current_signal
+    attr_accessor :dom, :signals, :current_signal, :block_pool
 
     def self.divided
       @@divided
     end
 
-    def initialize(dom, signals)
-      @dom, @signals, @@divided = dom, signals, []
-      @block_pool = Vips::Block::Pool.new
+    def initialize(signals)
+      @signals, @@divided = signals, []
+      @block_pool, @current_round = Vips::Block::Pool.new, 1
     end
 
-    def get_result
-      @result ||= divide_dom_into_blocks
-      @block_pool
+    def divide!(dom)
+      page_block = add_to_block_pool(dom)
+      split(page_block)
     end
 
-  private
-    # Первый уровень блоков - потомки страницы (body)
-    def divide_dom_into_blocks
-      # 1. Добавляем body в visual block pool
-      add_to_block_pool(dom)
+    # Executed at each round
+    def split(block)
+      puts "Divide block: #{block.inspect}"
+      puts "Current round at #{@current_round}".red
 
-      # 2. Весь первый уровень - блоки
-      dom.children.each do |child|
-        add_to_block_pool(child)
+      # 1. extract blocks
+      block.el.children.each do |el|
+        divide(el, 0, block)
       end
 
-      # 3. Делаем 5 раундов или пока не находим PDoc > DoC
-      current_round = 0
-      while ROUNDS > current_round && !granularity?
-        puts "Round at #{current_round}".blue
-        current_round += 1
+      # 2. find separators
+      separators = find_separators(block)
 
-        @block_pool.each do |block|
+      # 3. construct page
+      construct_blocks(block, separators)
+
+      @current_round += 1
+
+      # После текущего раунда block.children содержит список
+      # определившихся блоков. Если мы не прeвысили лимит раундов –
+      # для каждого из них текущего уровня повторяем раунд split
+      if ROUNDS >= @current_round
+        block.children.each do |block|
           if block.leaf_node? && !granularity?
-            log "Granularity: #{block.doc}".blue, block.level
-            divide(block.el, 0)
+            split(block)
           end
         end
       end
+      block
     end
 
+    def find_separators(block)
+      Separator::Manager.new.process(block.children)
+    end
+
+    def construct_blocks(block, separators)
+    end
+
+  private
     def signal_matched?(el, level)
       @current_signal = signals.find do |signal|
         log "checking #{signal.inspect}".blue, level
@@ -61,29 +74,32 @@ module Vips
       @current_signal
     end
 
-    def divide(el, level = 0, ancessor = nil)
+    def divide(el, level = 0, current_block = nil)
       log = ("-" * level) + "processing (#{level}): #{el.xpath}"
 
       debug el, level
       if signal_matched?(el, level)
         if current_signal.dividable == :dividable
+          puts "divide!"
           @@divided << el
           puts log.red
-          el.children.each { |child| divide(child, level + 1, @block_pool.last) }
+          el.children.each { |child| divide(child, level + 1, current_block) }
         elsif current_signal.dividable == :undividable
           puts log.yellow
-          add_to_block_pool(el, level, ancessor)
+          block = add_to_block_pool(el, level, current_block)
+          puts "create block! #{block}"
         end
       end
     end
 
-    def add_to_block_pool(el, level = 0, parent = nil)
-      block = Block::Element.new(el, parent)
+    def add_to_block_pool(el, level = 0, current_block = nil)
+      block = Block::Element.new(el, current_block)
 
       block.doc = current_signal.get_doc(el) if current_signal
       block.doc ||= Signal::Base::DEFAULT_DOC
 
-      @block_pool << block
+      current_block.add_child(block) if current_block
+      block
     end
 
     def granularity?
@@ -97,7 +113,11 @@ module Vips
     end
 
     def debug(el, level)
-      log "text - #{Signal::Color.text_node?(el)}", level
+      log "text? - #{Signal::Color.text_node?(el)}", level
+      log "valid? - #{Signal::Color.valid_node?(el)}", level
+      log "inline? - #{Signal::Color.inline_node?(el)}", level
+      log "has_valid_children? - #{Signal::Color.has_valid_children?(el)}", level
+
       log "width - #{el.width}", level
       log "height - #{el.height}", level
       log "visible - #{el.visible?}", level

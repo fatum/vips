@@ -188,9 +188,11 @@ $.fn.textChildren.defaults = {
 
   window.Renderer = (function() {
 
-    function Renderer(json) {
-      this.json = json;
-    }
+    function Renderer() {}
+
+    Renderer.prototype.renderSeparators = function(separators) {
+      return console.log(separators);
+    };
 
     Renderer.prototype.renderBlocks = function(blocks) {
       var block, element, _i, _len, _results;
@@ -233,5 +235,5 @@ chrome.extension.sendMessage({action: "extract", dom: structure}, function(respo
   var renderer = new Renderer(json)
   renderer.renderBlocks(json.blocks)
 
-  //renderer.renderSeparators(json.separators)
+  renderer.renderSeparators(json.separators)
 });

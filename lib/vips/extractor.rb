@@ -34,17 +34,6 @@ module Vips
       @blocks ||= split_elements_to_blocks
     end
 
-    def extract_separators!(blocks)
-      @separators ||= begin
-        manager = Separator::Manager.new
-        manager.process(blocks)
-      end
-    end
-
-    def construct_page!
-    end
-
-
   private
     def prepare_dom_data(input)
       node = Hash.new

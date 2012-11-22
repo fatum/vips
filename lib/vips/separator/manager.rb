@@ -16,6 +16,10 @@ module Vips
       end
 
       def process(pool)
+        puts "Start extracting separators. Blocks count: #{pool.count}"
+
+        return [] if pool.empty?
+
         initialize_separators(pool)
         remove_separator_which_adjacent_border
         #expand_and_refine_separator(pool)
@@ -36,12 +40,22 @@ module Vips
       end
 
       def evaluate_block(block)
-        return if block.text_node?
+        if block.text_node?
+          return puts "Block #{block} is text node, skip it"
+        end
 
         puts "Evaluate block: #{block.el.xpath}".green
         # TODO: remove?
-        sep = separators.dup
-        sep.each do |sep|
+        temp_sep = separators.dup
+        temp_sep.each do |sep|
+          # update original separator
+          sep = separators.find { |e| e == sep}
+
+          if same?(sep, block)
+            puts "Separator and block are same"
+            next
+          end
+
           if separator_contains_block?(sep, block)
             #If the block is contained in the separator, split the separator.
             puts "Separator contain block"
@@ -62,6 +76,7 @@ module Vips
       end
 
       def initialize_separators(pool)
+        puts "Initialize separators"
         # Set page size
         pool.each { |block| init_page(block) }
 

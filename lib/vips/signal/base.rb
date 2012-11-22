@@ -1,7 +1,7 @@
 module Vips
   module Signal
     module Base
-      DEFAULT_DOC = 8
+      DEFAULT_DOC = 2
       DEFAULT_PAGE_SIZE = 1024 * 768
 
       def dividable

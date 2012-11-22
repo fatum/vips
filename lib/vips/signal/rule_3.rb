@@ -4,7 +4,7 @@ module Vips
       extend Base
 
       def self.match?(el, level)
-        level == 0
+        level == 0 && ! el.children.empty?
       end
     end
   end
