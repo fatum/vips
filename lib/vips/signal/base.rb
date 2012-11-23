@@ -71,14 +71,8 @@ module Vips
       end
 
       def virtual_text_node?(el)
-        if !inline_node?(el) && ! text_node?(el)
-          return false
-        end
-
-        if el.children.any?
-          children_not_virtual_node?(el)
-        else
-          text_node?(el)
+        if inline_node?(el)
+          children_text_node?(el) || children_virtual_text_node?(el)
         end
       end
 
@@ -112,6 +106,10 @@ module Vips
 
       def children_virtual_text_node?(el)
         el.children.find { |child| !virtual_text_node?(child) } == nil
+      end
+
+      def children_text_node?(el)
+        el.children.find { |child| !text_node?(child) } == nil
       end
     end
   end

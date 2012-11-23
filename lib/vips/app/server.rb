@@ -15,8 +15,14 @@ class Server < Sinatra::Base
       end
     end
 
-    def prepare_result(blocks)
-      blocks.map(&:xpath)
+    def prepare_result(root_block)
+      aggregate root_block, []
+    end
+
+    def aggregate(block, response)
+      response << block.xpath
+      block.children.each { |child| aggregate(child, response) }
+      response
     end
 
     def prepare(dom)

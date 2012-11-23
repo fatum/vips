@@ -6,7 +6,7 @@ require 'vips/block/pool'
 module Vips
   class Divider
     PDOC = 10
-    ROUNDS = 1
+    ROUNDS = 50
     PAGE_SIZE = 1024 * 768
 
     attr_accessor :dom, :signals, :current_signal, :block_pool
@@ -27,7 +27,7 @@ module Vips
 
     # Executed at each round
     def split(block)
-      puts "Divide block: #{block.inspect}"
+      puts "Divide block: #{block}"
       puts "Current round at #{@current_round}".red
 
       # 1. extract blocks
@@ -36,7 +36,7 @@ module Vips
       end
 
       # 2. find separators
-      separators = find_separators(block)
+      separators = []#find_separators(block)
 
       # 3. construct page
       construct_blocks(block, separators)

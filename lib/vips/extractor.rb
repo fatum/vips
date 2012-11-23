@@ -63,7 +63,7 @@ module Vips
     end
 
     def split_elements_to_blocks
-      Divider.new(elements, SIGNALS).get_result
+      Divider.new(SIGNALS).divide!(elements)
     end
   end
 end
