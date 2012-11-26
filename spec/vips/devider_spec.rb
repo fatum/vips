@@ -1,19 +1,13 @@
 require 'spec_helper'
 
 describe Vips::Divider do
-  describe "#split", focus: true do
+  describe "#split" do
     context "when divide dom" do
       include_context :divider_body
 
-      subject { described_class.new(Vips::Extractor::SIGNALS).split(body) }
+      subject { described_class.new(Vips::Extractor::SIGNALS).divide!(body.el) }
 
-      it { should be_instance_of(Vips::Block::Element) }
-
-      its(:children) { should_not be_empty }
-
-      it "t" do
-#        binding.pry
-      end
+      it { should_not be_empty }
     end
   end
 end
