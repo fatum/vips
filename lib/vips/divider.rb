@@ -6,7 +6,7 @@ require 'vips/block/pool'
 module Vips
   class Divider
     PDOC = 10
-    ROUNDS = 1
+    ROUNDS = 3
     PAGE_SIZE = 1024 * 768
 
     attr_accessor :dom, :signals, :current_signal, :block_pool
@@ -35,20 +35,23 @@ module Vips
       next_level = create_empty_level
 
       puts "Current round at #{@current_round}".red
-      level.blocks.each do |block|
+      puts "Current level have #{level.blocks.size} blocks".red
+
+      level.blocks.size.times do |i|
+        block = level.blocks[i]
+
         puts "Divide block: #{block}"
         if block.leaf_node? && !granularity?
           puts 'Split level'
-          split(block, level)
+          split(block, next_level)
         end
       end
 
       # 2. find separators
-      level.separators = find_separators(level)
+      level.separators = []#find_separators(level)
 
       # 3. construct page
       #construct_blocks(block)
-
 
       @current_round += 1
 
