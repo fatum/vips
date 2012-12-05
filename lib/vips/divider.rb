@@ -48,7 +48,7 @@ module Vips
       end
 
       # 2. find separators
-      level.separators = []#find_separators(level)
+      level.separators = find_separators(level)
 
       # 3. construct page
       #construct_blocks(block)
@@ -68,7 +68,7 @@ module Vips
     def split(block, level)
       # 1. extract blocks
       block.el.children.each do |el|
-        puts "Divide children #{el}"
+        #puts "Divide children #{el}"
         divide(el, 0, level)
       end
     end
@@ -101,14 +101,14 @@ module Vips
       debug el, level
       if signal_matched?(el, level)
         if current_signal.dividable == :dividable
-          puts "divide!"
+          #puts "divide!"
           @@divided << el
-          puts log.red
+          #puts log.red
           el.children.each { |child| divide(child, level + 1, block_level) }
         elsif current_signal.dividable == :undividable
-          puts log.yellow
+          #puts log.yellow
           block = add_to_level(el, block_level)
-          puts "create block! #{block}"
+          #puts "create block! #{block}"
         end
       end
     end
@@ -130,6 +130,7 @@ module Vips
     end
 
     def log(msg, level)
+      return
       puts (" " * (level + 1)) + msg
     end
 

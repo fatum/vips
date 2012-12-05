@@ -18,14 +18,10 @@ class Server < Sinatra::Base
     def prepare_result(levels)
       levels.map do |level|
         {
-          blocks: aggregate(level.blocks),
-          separators: aggregate(level.separators)
+          blocks: level.blocks.map { |b| {xpath: b.xpath, width: b.width, height: b.height, left: b.left, top: b.top} },
+          separators: level.separators.map { |s| {width: s.width, height: s.height, left: s.left, top: s.top } }
         }
       end
-    end
-
-    def aggregate(blocks)
-      blocks.map(&:xpath)
     end
 
     def prepare(dom)

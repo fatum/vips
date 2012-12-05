@@ -21,10 +21,10 @@ module Vips
         return [] if pool.empty?
 
         initialize_separators(pool)
-        remove_separator_which_adjacent_border
+        #remove_separator_which_adjacent_border
         #expand_and_refine_separator(pool)
-        set_relative_blocks(pool)
-        remove_separators_without_relative_blocks!
+        #set_relative_blocks(pool)
+        #remove_separators_without_relative_blocks!
 
         separators
       end
@@ -60,25 +60,28 @@ module Vips
             #If the block is contained in the separator, split the separator.
             puts "Separator contain block"
             split(sep, block)
-          elsif block_cover_separator?(block, sep)
+          #elsif block_cover_separator?(block, sep)
             #If the block covers the separator, remove the separator.
-            puts "Block cover separator"
-            separators.delete(sep)
-          elsif block_cross_separator?(block, sep)
-            puts "Block across separator"
-            split(sep, block)
-          else
+          #  puts "Block cover separator"
+          #  separators.delete(sep)
+          #elsif block_cross_separator?(block, sep)
+          #  puts "Block across separator"
+          #  split(sep, block)
+          #else
             #If the block crosses with the separator, update the separator's parameters.
-            puts "Block outsize of separator"
+          #  puts "Block outsize of separator"
             #do_update_while_block_crossed_border(block, sep)
           end
         end
       end
 
       def initialize_separators(pool)
-        puts "Initialize separators"
+        puts "**************** Initialize separators ********************"
+
         # Set page size
         pool.each { |block| init_page(block) }
+
+        puts "New page size: #{@page.width}: #{@page.height}"
 
         # split separators
         pool.each do |block|

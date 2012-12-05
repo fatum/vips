@@ -16,6 +16,15 @@ module Vips
         define_method(action) { el.send action }
       end
 
+      def attributes
+        {
+          top: top,
+          left: left,
+          width: width,
+          height: height
+        }
+      end
+
       def add_child(child)
         child.parent ||= self
         children << child

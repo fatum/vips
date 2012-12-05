@@ -1,36 +1,39 @@
+# -*- encoding : utf-8 -*-
 module Vips
   module HelperManager
     def split(sep, block)
-      puts 'Try split separator by block..'
-      old_separator = sep.dup
+      puts '----------- Try split separator by block..'
+      puts "Separator: #{sep.attributes.inspect}"
+      puts "Block: #{block.attributes.inspect}"
+
+      old_top = sep.top
+      old_width = sep.width
+      old_left = sep.left
+      old_full_width = sep.full_width
+
       if sep.vertical?
         puts 'Separator is vertical'
-        if cross_middle_of_separator_width?(sep, block)
-          puts 'Block cross separator middle width'
-          sep.width = sep.full_left - block.full_left
-          puts "New separator width: #{sep.width}"
-        else
-          sep.left = block.full_left
-          puts "New separator left: #{sep.left}"
-        end
-        create_separator(sep, width: block.left) unless cross?(sep, block)
-      else
-        puts 'Separator is horizontal'
-        if sep.full_height != block.full_height
-          sep.height = (sep.full_height - block.full_height).abs
 
-          puts "New separator height: #{sep.height}"
-          sep.top = block.full_height
-          puts "New separator top: #{sep.top}"
-        else
-          puts 'Block has vertical offset, skip it'
-        end
+        puts 'Сдвигаем сепаратор до правой границы блока'
+        sep.width = block.left
 
-        if !sep.have_same_vertices?(block.create_polygon) && ! cross?(sep, block)
-          puts 'Create new separator'
-          create_separator(sep, height: block.top)
+        puts 'Если блок находится внутри сепаратора, то создаём новый блок'
+        if old_left < block.left
+          create_separator(sep, left: block.full_width, width: (old_full_width - block.full_width).abs)
         end
+      #else
+        #puts 'Separator is horizontal'
+
+        #puts 'Опускаем сепаратор до нижней границы блока'
+        #sep.top = block.full_height
+
+        #puts 'Если блок находится внутри сепаратора, то создаём новый блок'
+        #if old_top < block.top
+          #create_separator(sep, top: old_top, height: block.top)
+        #end
       end
+
+      #binding.pry; abort
     end
 
     def same?(sep, block)
@@ -49,51 +52,12 @@ module Vips
     end
 
     def create_separator(sep, attrs)
-      attrs.merge! sep.attributes
+      attributes = sep.attributes.dup
+      attributes.merge! attrs
 
-      separators << Vips::Separator::Element.new(attrs)
-    end
-
-    def do_update_while_block_crossed_border(block, sep)
-      if in_area?(block.left, block.top, sep)
-        size1 = (block.top - sep.top) * sep.width
-        size2 = sep.height * (block.left - sep.left)
-
-        if size1 >= size2
-          sep.height = block.top - sep.top
-        else
-          sep.width = block.left - sep.left
-        end
-      elsif in_area?(block.full_width, block.top, sep)
-        size1 = (block.full_width - sep.top) * sep.width
-        size2 = sep.height * (block.width - (block.full_width - sep.left))
-
-        if size1 >= size2
-          sep.height = block.top - sep.top
-        else
-          sep.width = block.width
-          sep.left = block.full_width
-        end
-      elsif in_area?(block.left, block.full_height, sep)
-        size1 = (sep.height - (block.full_height - sep.top)) * sep.width
-        size2 = sep.height * (block.left - sep.top)
-
-        if size1 >= size2
-          sep.height = sep.height - (block.full_height - sep.top)
-          sep.top = block.full_height
-        else
-          sep.width = block.left - sep.left
-        end
-      elsif in_area?(block.full_width, block.full_height, sep)
-        size1 = (sep.height - (block.full_height - sep.top)) * sep.width
-        size2 = sep.height * (block.width - (block.full_width - sep.left))
-
-        if size1 >= size2
-          sep.height = sep.height - (block.full_height - sep.top)
-          sep.top = block.full_height
-        else
-          sep.width = block.width - (block.full_width - sep.left)
-        end
+      new_sep = Vips::Separator::Element.new(attributes)
+      if !same?(sep, new_sep) && !separators.find { |s| same?(s, new_sep) }
+        separators << new_sep
       end
     end
 

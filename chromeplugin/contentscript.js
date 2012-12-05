@@ -190,32 +190,53 @@ $.fn.textChildren.defaults = {
 
     function Renderer() {}
 
-    Renderer.prototype.renderLevels = function(levels) {
-      var i, level, _i, _len, _results;
+    Renderer.prototype.renderLevels = function(levels, active) {
+      var block, i, level, _i, _j, _len, _len1, _ref;
       console.log("Detected " + levels.length + " levels!");
       i = 0;
-      _results = [];
       for (_i = 0, _len = levels.length; _i < _len; _i++) {
         level = levels[_i];
-        this.renderBlocks(level.blocks, i++);
-        _results.push(this.renderSeparators(level.separators));
+        console.log("Level " + (++i) + " have blocks:");
+        _ref = level.blocks;
+        for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+          block = _ref[_j];
+          console.log("Block " + block.xpath);
+          console.log("--- width " + block.width);
+          console.log("--- height " + block.height);
+          console.log("--- left " + block.left);
+          console.log("--- top " + block.top);
+        }
+      }
+      this.renderBlocks(levels[active - 1].blocks);
+      return this.renderSeparators(levels[active - 1].separators);
+    };
+
+    Renderer.prototype.renderSeparators = function(separators) {
+      var element, separator, _i, _len, _results;
+      _results = [];
+      for (_i = 0, _len = separators.length; _i < _len; _i++) {
+        separator = separators[_i];
+        element = $(document.createElement('div'));
+        element.css(separator);
+        element.css({
+          'border': 'double',
+          'color': 'red',
+          'position': 'absolute'
+        });
+        element.addClass('separator');
+        _results.push($('body').append(element));
       }
       return _results;
     };
 
-    Renderer.prototype.renderSeparators = function(separators) {
-      return console.log(separators);
-    };
-
-    Renderer.prototype.renderBlocks = function(blocks, level) {
+    Renderer.prototype.renderBlocks = function(blocks) {
       var block, element, _i, _len, _results;
       _results = [];
       for (_i = 0, _len = blocks.length; _i < _len; _i++) {
         block = blocks[_i];
-        console.log("Processing " + block + "...");
-        element = this.getElementByXPath("//" + block);
+        console.log("Processing " + block.xpath + "...");
+        element = this.getElementByXPath("//" + block.xpath);
         element.addClass('vips-block');
-        element.addClass("level-" + level);
         _results.push(element.css({
           'border': 'double'
         }));
@@ -238,15 +259,23 @@ $.fn.textChildren.defaults = {
 
 
 
-var creator = new PageStructureCreator();
-var structure = creator.createStructure();
+var search_params = document.location.search;
+var is_load_vips = search_params.indexOf('vips=true');
 
-console.log('Send extraction request to extension');
-chrome.extension.sendMessage({action: "extract", dom: structure}, function(response) {
-  console.log('Receive response!');
-  console.log(response);
-  var json = eval('(' + response + ')');
+if (is_load_vips == 1) {
+  var creator = new PageStructureCreator();
+  var structure = creator.createStructure();
 
-  var renderer = new Renderer()
-  renderer.renderLevels(json.levels)
-});
+  console.log('Send extraction request to extension');
+  chrome.extension.sendMessage({action: "extract", dom: structure}, function(response) {
+    console.log('Receive response!');
+    console.log(response);
+    var json = eval('(' + response + ')');
+
+    var active_level = search_params.match('vips_level=(.+)$')[1]
+
+    var renderer = new Renderer()
+    renderer.renderLevels(json.levels, active_level)
+  });
+}
+;
