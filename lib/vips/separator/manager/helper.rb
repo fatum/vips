@@ -16,10 +16,15 @@ module Vips
         create_separator(sep, width: block.left) unless cross?(sep, block)
       else
         puts 'Separator is horizontal'
-        sep.height = sep.full_height - block.full_height
-        puts "New separator height: #{sep.height}"
-        sep.top = block.full_height
-        puts "New separator top: #{sep.top}"
+        if sep.full_height != block.full_height
+          sep.height = (sep.full_height - block.full_height).abs
+
+          puts "New separator height: #{sep.height}"
+          sep.top = block.full_height
+          puts "New separator top: #{sep.top}"
+        else
+          puts 'Block has vertical offset, skip it'
+        end
 
         if !sep.have_same_vertices?(block.create_polygon) && ! cross?(sep, block)
           puts 'Create new separator'

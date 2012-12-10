@@ -6,7 +6,7 @@ require 'vips/block/pool'
 module Vips
   class Divider
     PDOC = 10
-    ROUNDS = 50
+    ROUNDS = 3
     PAGE_SIZE = 1024 * 768
 
     attr_accessor :dom, :signals, :current_signal, :block_pool
@@ -21,25 +21,37 @@ module Vips
     end
 
     def divide!(dom)
-      page_block = add_to_block_pool(dom)
-      split(page_block)
+      level = create_empty_level
+
+      add_to_level(dom, level)
+
+      split_level(level)
     end
 
     # Executed at each round
-    def split(block)
-      puts "Divide block: #{block}"
-      puts "Current round at #{@current_round}".red
+    def split_level(level, level_list = [])
+      level_list << level
 
-      # 1. extract blocks
-      block.el.children.each do |el|
-        divide(el, 0, block)
+      next_level = create_empty_level
+
+      puts "Current round at #{@current_round}".red
+      puts "Current level have #{level.blocks.size} blocks".red
+
+      level.blocks.size.times do |i|
+        block = level.blocks[i]
+
+        puts "Divide block: #{block}"
+        if block.leaf_node? && !granularity?
+          puts 'Split level'
+          split(block, next_level)
+        end
       end
 
       # 2. find separators
-      separators = []#find_separators(block)
+      level.separators = []#find_separators(level)
 
       # 3. construct page
-      construct_blocks(block, separators)
+      #construct_blocks(block)
 
       @current_round += 1
 
@@ -47,23 +59,32 @@ module Vips
       # определившихся блоков. Если мы не прeвысили лимит раундов –
       # для каждого из них текущего уровня повторяем раунд split
       if ROUNDS >= @current_round
-        block.children.each do |block|
-          if block.leaf_node? && !granularity?
-            split(block)
-          end
-        end
+        split_level(next_level, level_list)
       end
-      block
+
+      level_list
     end
 
-    def find_separators(block)
-      Separator::Manager.new.process(block.children)
+    def split(block, level)
+      # 1. extract blocks
+      block.el.children.each do |el|
+        puts "Divide children #{el}"
+        divide(el, 0, level)
+      end
     end
 
-    def construct_blocks(block, separators)
+    def find_separators(level)
+      Separator::Manager.new.process(level.blocks)
+    end
+
+    def construct_blocks(block)
     end
 
   private
+    def create_empty_level
+      OpenStruct.new(blocks: [], separators: [])
+    end
+
     def signal_matched?(el, level)
       @current_signal = signals.find do |signal|
         log "checking #{signal.inspect}".blue, level
@@ -74,7 +95,7 @@ module Vips
       @current_signal
     end
 
-    def divide(el, level = 0, current_block = nil)
+    def divide(el, level = 0, block_level = nil)
       log = ("-" * level) + "processing (#{level}): #{el.xpath}"
 
       debug el, level
@@ -83,22 +104,22 @@ module Vips
           puts "divide!"
           @@divided << el
           puts log.red
-          el.children.each { |child| divide(child, level + 1, current_block) }
+          el.children.each { |child| divide(child, level + 1, block_level) }
         elsif current_signal.dividable == :undividable
           puts log.yellow
-          block = add_to_block_pool(el, level, current_block)
+          block = add_to_level(el, block_level)
           puts "create block! #{block}"
         end
       end
     end
 
-    def add_to_block_pool(el, level = 0, current_block = nil)
-      block = Block::Element.new(el, current_block)
+    def add_to_level(el, level = nil)
+      block = Block::Element.new(el)
 
       block.doc = current_signal.get_doc(el) if current_signal
       block.doc ||= Signal::Base::DEFAULT_DOC
 
-      current_block.add_child(block) if current_block
+      level.blocks << block if level
       block
     end
 

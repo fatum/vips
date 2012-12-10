@@ -4,10 +4,12 @@ module Vips
       include Polygon
 
       attr_reader :el, :children
-      attr_accessor :doc, :level, :parent
+      attr_accessor :doc, :level, :parent, :separators
 
       def initialize(el, parent = nil)
-        @children, @doc, @level, @parent, @el = [], 8, 0, parent, el
+        @doc, @level, @parent, @el = 8, 0, parent, el
+
+        @separators = @children = []
       end
 
       %w(width height).each do |action|

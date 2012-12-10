@@ -10,6 +10,7 @@ shared_context :divider_body do
                 children: children,
                 width: 1024, height: 768,
                 top: 0, left: 0,
+                offset_left: 1024, offset_top: 768,
                 color: :black,
                 visible?: true
                )
@@ -24,6 +25,7 @@ shared_context :divider_body do
                 children: children2,
                 width: 1024, height: 50,
                 left: 0, top: 10 * i,
+                offset_left: 1024, offset_top: 50 + 10*i,
                 color: :white,
                 xpath: "body/p[#{i}]",
                 visible?: true
@@ -39,6 +41,7 @@ shared_context :divider_body do
                 children: [],
                 width: 100, height: 50,
                 left: 40, top: 10 * i,
+                offset_left: 140, offset_top: 10 + 10*i,
                 color: :white,
                 xpath: "body/p[#{i}]/div[#{i}]",
                 visible?: true

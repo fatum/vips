@@ -190,11 +190,24 @@ $.fn.textChildren.defaults = {
 
     function Renderer() {}
 
+    Renderer.prototype.renderLevels = function(levels) {
+      var i, level, _i, _len, _results;
+      console.log("Detected " + levels.length + " levels!");
+      i = 0;
+      _results = [];
+      for (_i = 0, _len = levels.length; _i < _len; _i++) {
+        level = levels[_i];
+        this.renderBlocks(level.blocks, i++);
+        _results.push(this.renderSeparators(level.separators));
+      }
+      return _results;
+    };
+
     Renderer.prototype.renderSeparators = function(separators) {
       return console.log(separators);
     };
 
-    Renderer.prototype.renderBlocks = function(blocks) {
+    Renderer.prototype.renderBlocks = function(blocks, level) {
       var block, element, _i, _len, _results;
       _results = [];
       for (_i = 0, _len = blocks.length; _i < _len; _i++) {
@@ -202,6 +215,7 @@ $.fn.textChildren.defaults = {
         console.log("Processing " + block + "...");
         element = this.getElementByXPath("//" + block);
         element.addClass('vips-block');
+        element.addClass("level-" + level);
         _results.push(element.css({
           'border': 'double'
         }));
@@ -230,10 +244,9 @@ var structure = creator.createStructure();
 console.log('Send extraction request to extension');
 chrome.extension.sendMessage({action: "extract", dom: structure}, function(response) {
   console.log('Receive response!');
+  console.log(response);
   var json = eval('(' + response + ')');
 
-  var renderer = new Renderer(json)
-  renderer.renderBlocks(json.blocks)
-
-  renderer.renderSeparators(json.separators)
+  var renderer = new Renderer()
+  renderer.renderLevels(json.levels)
 });

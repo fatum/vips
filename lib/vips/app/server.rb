@@ -15,14 +15,17 @@ class Server < Sinatra::Base
       end
     end
 
-    def prepare_result(root_block)
-      aggregate root_block, []
+    def prepare_result(levels)
+      levels.map do |level|
+        {
+          blocks: aggregate(level.blocks),
+          separators: aggregate(level.separators)
+        }
+      end
     end
 
-    def aggregate(block, response)
-      response << block.xpath
-      block.children.each { |child| aggregate(child, response) }
-      response
+    def aggregate(blocks)
+      blocks.map(&:xpath)
     end
 
     def prepare(dom)
@@ -48,10 +51,10 @@ class Server < Sinatra::Base
     if params[:dom]
       dom = prepare params[:dom]
       extractor = Vips::Extractor.new(dom)
-      blocks = prepare_result extractor.extract_blocks!
+      levels = prepare_result extractor.extract_blocks!
     end
 
-    {status: :ok, blocks: blocks}.to_json
+    {status: :ok, levels: levels}.to_json
   end
 
   get '/' do

@@ -15,6 +15,13 @@ module Vips
         define_method(:"#{el}=") { |v| attributes[el.to_sym] = v }
       end
 
+      def coordinates
+        {
+          width: width, height: height,
+          left: full_width, top: full_height
+        }
+      end
+
       def full_width
         left + width
       end
